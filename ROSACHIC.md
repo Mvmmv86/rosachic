@@ -2492,6 +2492,356 @@ export const REGEX_PATTERNS = {
 
 ---
 
+#### **Task 1.5.5: Criar tipos avançados de Product para Admin**
+
+**Arquivo:** `frontend/src/types/product-admin.ts`
+
+```typescript
+// DTOs para criação e edição
+export interface CreateProductDTO {
+  codigo: string
+  modelo: string
+  luminosidade: Luminosidade
+  material: Material
+  valorM2: number
+  larguraMaxCm: number
+  alturaMaxCm: number
+  restricoes: {
+    areaMinM2: number
+    ambiente: Ambiente[]
+  }
+  descricao: string
+  estoque: number
+  ativo?: boolean
+  imagens?: string[]
+  seo?: ProductSEO
+}
+
+export interface UpdateProductDTO extends Partial<CreateProductDTO> {
+  id: string
+}
+
+// Variações de produtos
+export interface ProductVariant {
+  id: string
+  productId: string
+  sku: string
+  name: string // Ex: "Rosa Claro", "Textura Lisa"
+  tipo: 'cor' | 'textura' | 'acabamento'
+  priceAdjustment: number // Ajuste de preço em %
+  stockQuantity: number
+  images: string[]
+  attributes: {
+    colorHex?: string
+    texture?: string
+    finish?: string
+  }
+  isAvailable: boolean
+}
+
+// Categorias detalhadas
+export interface ProductCategory {
+  id: string
+  name: string
+  slug: string
+  parentId?: string // Para subcategorias
+  description: string
+  image?: string
+  displayOrder: number
+  isActive: boolean
+  children?: ProductCategory[]
+}
+
+// Especificações técnicas
+export interface ProductSpecification {
+  id: string
+  productId: string
+  grupo: 'tecnico' | 'material' | 'dimensional' | 'manutencao'
+  especificacoes: {
+    nome: string
+    valor: string | number
+    unidade?: string
+  }[]
+}
+
+// Certificações
+export interface ProductCertification {
+  id: string
+  nome: string // Ex: "Anti-chamas", "Anti-fungo"
+  descricao: string
+  orgaoEmissor: string
+  validade?: Date
+  certificado?: string // URL do PDF
+}
+
+// Auditoria e histórico
+export interface ProductAudit {
+  id: string
+  productId: string
+  userId: string
+  userName: string
+  action: 'create' | 'update' | 'delete' | 'archive'
+  changes: {
+    field: string
+    oldValue: any
+    newValue: any
+  }[]
+  timestamp: Date
+  ip?: string
+}
+
+// Métricas de produto
+export interface ProductMetrics {
+  productId: string
+  views: number
+  uniqueViews: number
+  addedToCart: number
+  purchased: number
+  conversionRate: number
+  averageRating: number
+  totalReviews: number
+  lastViewDate?: Date
+  lastPurchaseDate?: Date
+}
+
+// Relacionamentos
+export interface ProductRelationship {
+  id: string
+  productId: string
+  relatedProductId: string
+  type: 'complementar' | 'similar' | 'upgrade' | 'kit'
+  displayOrder: number
+}
+
+// Promoções
+export interface ProductPromotion {
+  id: string
+  productId: string
+  name: string
+  type: 'desconto_percentual' | 'desconto_fixo' | 'leve_x_pague_y'
+  value: number
+  startDate: Date
+  endDate: Date
+  conditions?: {
+    minQuantity?: number
+    maxQuantity?: number
+    customerGroups?: string[]
+  }
+  isActive: boolean
+}
+```
+
+**Validação:**
+- [ ] DTOs cobrem CRUD completo
+- [ ] Tipos para variações e categorias
+- [ ] Suporte para auditoria
+- [ ] Métricas e analytics
+
+---
+
+#### **Task 1.5.6: Criar tipos de SEO e Mídia**
+
+**Arquivo:** `frontend/src/types/product-seo.ts`
+
+```typescript
+// SEO e Meta tags
+export interface ProductSEO {
+  metaTitle?: string
+  metaDescription?: string
+  metaKeywords?: string[]
+  slug: string
+  canonicalUrl?: string
+  ogImage?: string
+  ogTitle?: string
+  ogDescription?: string
+  structuredData?: Record<string, any>
+}
+
+// Mídia e galeria
+export interface ProductMedia {
+  id: string
+  productId: string
+  type: 'imagem' | 'video' | '360' | 'pdf'
+  url: string
+  thumbnail?: string
+  title: string
+  alt: string
+  description?: string
+  category: 'principal' | 'galeria' | 'ambiente' | 'detalhe' | 'textura' | 'manual'
+  displayOrder: number
+  size?: number // em bytes
+  dimensions?: {
+    width: number
+    height: number
+  }
+  mimeType: string
+  isActive: boolean
+}
+
+// Avaliações e reviews
+export interface ProductReview {
+  id: string
+  productId: string
+  userId: string
+  userName: string
+  rating: 1 | 2 | 3 | 4 | 5
+  title?: string
+  comment: string
+  pros?: string[]
+  cons?: string[]
+  verified: boolean // Compra verificada
+  helpful: number // Votos úteis
+  notHelpful: number
+  images?: string[]
+  createdAt: Date
+  response?: {
+    message: string
+    respondedBy: string
+    respondedAt: Date
+  }
+}
+
+// FAQ do produto
+export interface ProductFAQ {
+  id: string
+  productId: string
+  question: string
+  answer: string
+  displayOrder: number
+  helpful: number
+  notHelpful: number
+  createdAt: Date
+  answeredBy?: string
+}
+```
+
+**Validação:**
+- [ ] SEO completo com Open Graph
+- [ ] Sistema de mídia flexível
+- [ ] Reviews com verificação
+- [ ] FAQ integrado
+
+---
+
+#### **Task 1.5.7: Criar tipos de Inventário e Logística**
+
+**Arquivo:** `frontend/src/types/product-inventory.ts`
+
+```typescript
+// Gestão de estoque
+export interface ProductInventory {
+  productId: string
+  variantId?: string
+  currentStock: number
+  reservedStock: number // Reservado em carrinho/pedidos
+  availableStock: number // currentStock - reservedStock
+  incomingStock: number // Em produção/chegando
+  incomingDate?: Date
+  lowStockThreshold: number
+  outOfStockThreshold: number
+  restockAlert: boolean
+  lastRestockDate?: Date
+  averageDailySales?: number
+  daysUntilOutOfStock?: number
+}
+
+// Movimentações de estoque
+export interface StockMovement {
+  id: string
+  productId: string
+  variantId?: string
+  type: 'entrada' | 'saida' | 'ajuste' | 'reserva' | 'cancelamento'
+  quantity: number
+  reason: string
+  reference?: string // Número do pedido, NF, etc
+  previousStock: number
+  newStock: number
+  createdBy: string
+  createdAt: Date
+  notes?: string
+}
+
+// Fornecedores
+export interface ProductSupplier {
+  id: string
+  productId: string
+  supplierId: string
+  supplierName: string
+  supplierCode: string // Código no fornecedor
+  cost: number
+  leadTime: number // Dias para entrega
+  minOrderQuantity: number
+  isDefault: boolean
+  lastPurchaseDate?: Date
+  lastPurchasePrice?: number
+}
+
+// Tabela de preços por quantidade/região
+export interface PriceTable {
+  id: string
+  productId: string
+  name: string
+  type: 'quantidade' | 'regiao' | 'cliente_tipo'
+  rules: PriceRule[]
+  validFrom: Date
+  validUntil?: Date
+  isActive: boolean
+}
+
+export interface PriceRule {
+  id: string
+  condition: {
+    minQuantity?: number
+    maxQuantity?: number
+    region?: string[]
+    customerType?: string[]
+  }
+  adjustment: {
+    type: 'percentual' | 'fixo'
+    value: number
+  }
+  priority: number
+}
+
+// Disponibilidade regional
+export interface RegionalAvailability {
+  productId: string
+  regions: {
+    id: string
+    name: string
+    available: boolean
+    deliveryTime: number // dias
+    shippingCost?: number
+    restrictions?: string[]
+  }[]
+}
+
+// Kits e combos
+export interface ProductKit {
+  id: string
+  name: string
+  description: string
+  items: {
+    productId: string
+    quantity: number
+    isOptional: boolean
+    discount?: number // Desconto no item do kit
+  }[]
+  kitPrice: number
+  savingAmount: number // Economia total
+  savingPercentage: number
+  isActive: boolean
+}
+```
+
+**Validação:**
+- [ ] Gestão completa de estoque
+- [ ] Rastreamento de movimentações
+- [ ] Suporte para múltiplos fornecedores
+- [ ] Tabelas de preço flexíveis
+
+---
+
 ### **1.6 Utilitários & Helpers**
 
 #### **Task 1.6.1: Criar utilitários de formatação**

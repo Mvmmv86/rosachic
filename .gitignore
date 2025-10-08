@@ -83,3 +83,6 @@ venv/
 *.backup
 *.bak
 *~
+
+# Scripts com tokens sensíveis
+scripts/

@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  name          String
+  phone         String?
+  cpf           String?   @unique
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  orders        Order[]
+  favorites     Favorite[]
+
+  @@map("users")
+}
+
+model Product {
+  id              String        @id @default(uuid())
+  codigo          String        @unique
+  modelo          String
+  luminosidade    Luminosidade
+  material        Material
+  valorM2         Float         @map("valor_m2")
+  larguraMaxCm    Int           @map("largura_max_cm")
+  alturaMaxCm     Int           @map("altura_max_cm")
+  areaMinM2       Float         @default(1.0) @map("area_min_m2")
+  ambientes       String  // JSON array stored as string
+  imagens         String  // JSON array stored as string
+  descricao       String
+  estoque         Int           @default(0)
+  ativo           Boolean       @default(true)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  orderItems      OrderItem[]
+  favorites       Favorite[]
+
+  @@map("products")
+}
+
+model Order {
+  id              String        @id @default(uuid())
+  userId          String        @map("user_id")
+  status          OrderStatus   @default(PENDING)
+  subtotal        Float
+  instalacao      Float
+  frete           Float
+  desconto        Float         @default(0)
+  total           Float
+  paymentMethod   PaymentMethod @map("payment_method")
+  paymentStatus   PaymentStatus @default(PENDING) @map("payment_status")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  user            User          @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  shipping        Shipping?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String    @id @default(uuid())
+  orderId         String    @map("order_id")
+  productId       String    @map("product_id")
+  widthCm         Int       @map("width_cm")
+  heightCm        Int       @map("height_cm")
+  areaCobravel    Float     @map("area_cobravel")
+  pricePerM2      Float     @map("price_per_m2")
+  quantity        Int       @default(1)
+  subtotal        Float
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product         Product   @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Shipping {
+  id              String    @id @default(uuid())
+  orderId         String    @unique @map("order_id")
+  recipientName   String    @map("recipient_name")
+  street          String
+  number          String
+  complement      String?
+  neighborhood    String
+  city            String
+  state           String
+  zipCode         String    @map("zip_code")
+  trackingCode    String?   @map("tracking_code")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("shipping")
+}
+
+model Favorite {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  productId   String    @map("product_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Luminosidade {
+  Translucida
+  Blackout
+}
+
+enum Material {
+  Tecido
+  PVC
+  Madeira
+  Bambu
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  PIX
+  CREDIT_CARD
+  BOLETO
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+}

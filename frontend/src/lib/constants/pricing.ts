@@ -1,0 +1,28 @@
+export const PRICING_CONSTANTS = {
+  CM_TO_METERS: 100,
+  MIN_CHARGEABLE_AREA_M2: 1.0,
+  DEFAULT_LOSS_FACTOR: 1.1,
+  LOSS_FACTOR_MIN: 1.05,
+  LOSS_FACTOR_MAX: 1.15,
+  ROUNDING_DECIMAL_PLACES: 1,
+  INSTALLATION_PERCENTAGE_MIN: 0.08,
+  INSTALLATION_PERCENTAGE_MAX: 0.12,
+  DEFAULT_INSTALLATION_PERCENTAGE: 0.1,
+} as const
+
+export const DIMENSION_LIMITS = {
+  WIDTH_MIN_CM: 1,
+  WIDTH_MAX_CM: 300,
+  HEIGHT_MIN_CM: 1,
+  HEIGHT_MAX_CM: 350,
+  MAX_RECOMMENDED_AREA_M2: 8,
+} as const
+
+export const MATERIAL_FACTORS = {
+  'Tela Solar': 1.0,
+  'Blackout Tecido': 1.25,
+  'Linho Premium': 1.15,
+  'Madeira': 1.6,
+  'Bambu': 1.7,
+  'PVC': 1.0,
+} as const
