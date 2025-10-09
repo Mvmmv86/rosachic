@@ -1,0 +1,317 @@
+'use client'
+
+import Link from 'next/link'
+import { Search, ShoppingCart, User, Trash2, Plus, Minus } from 'lucide-react'
+import { Logo } from '@/components/Logo'
+import { useState } from 'react'
+
+export default function CarrinhoPage() {
+  const [cartItems, setCartItems] = useState([
+    {
+      id: 1,
+      name: 'Persiana Blackout Kitbox - Preto',
+      size: '2,0m x 1,5m',
+      price: 350.19,
+      quantity: 2,
+      image: '/products/produto1.jpg'
+    },
+    {
+      id: 2,
+      name: 'Persiana Rolô Tela Solar 5% - Branca',
+      size: '1,8m x 1,2m',
+      price: 280.50,
+      quantity: 1,
+      image: '/products/produto2.jpg'
+    }
+  ])
+
+  const updateQuantity = (id: number, delta: number) => {
+    setCartItems(items =>
+      items.map(item =>
+        item.id === id
+          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+          : item
+      )
+    )
+  }
+
+  const removeItem = (id: number) => {
+    setCartItems(items => items.filter(item => item.id !== id))
+  }
+
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const frete = 0 // Frete grátis
+  const total = subtotal + frete
+
+  return (
+    <div className="min-h-screen bg-[rgb(241,237,237)]">
+      {/* Header */}
+      <header className="w-full bg-[rgb(108,25,29)] flex py-4 flex-col items-center gap-2">
+        <div className="w-full max-w-[1224px] mx-auto px-6">
+          <div className="flex w-full justify-between items-center">
+            <Logo />
+
+            <div className="w-[336px] h-[40px] relative">
+              <input
+                type="text"
+                placeholder="Buscar persianas, serviços, etc..."
+                className="w-full h-full px-4 pr-10 rounded-lg border border-[rgb(200,190,191)] bg-white text-sm font-['Inter'] text-[rgb(119,105,106)] placeholder-[rgb(119,105,106)]"
+              />
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(78,67,67)]" />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button className="w-9 h-9 bg-white rounded-full border border-[rgb(108,25,29)] flex items-center justify-center">
+                <User className="w-5 h-5 text-[rgb(108,25,29)]" />
+              </button>
+              <button className="w-9 h-9 bg-white rounded-full flex items-center justify-center">
+                <ShoppingCart className="w-5 h-5 text-[rgb(108,25,29)]" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full max-w-[1224px] mx-auto px-6">
+          <nav className="flex w-full justify-center">
+            <ul className="flex items-center gap-4 text-[rgb(241,237,237)] text-sm font-['Inter'] font-normal">
+              <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
+              <li><Link href="/produtos" className="hover:text-white transition-colors">Categorias</Link></li>
+              <li><Link href={"/" as any} className="hover:text-white transition-colors">Guia rápido</Link></li>
+              <li><Link href={"/" as any} className="hover:text-white transition-colors">Ambientes</Link></li>
+              <li><Link href={"/" as any} className="hover:text-white transition-colors">Serviços</Link></li>
+              <li><Link href={"/" as any} className="hover:text-white transition-colors">Mais procurados</Link></li>
+              <li><Link href={"/" as any} className="hover:text-white transition-colors">Outros</Link></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="w-full max-w-[1224px] mx-auto px-6 py-8">
+        <h1 className="text-[32px] font-['Inter'] font-bold text-black mb-8">Carrinho de Compras</h1>
+
+        <div className="flex gap-6">
+          {/* Lista de Produtos - Coluna Principal */}
+          <div className="flex-1">
+            {cartItems.length === 0 ? (
+              <div className="bg-white rounded-xl p-12 text-center">
+                <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <p className="text-lg font-['Inter'] text-gray-600">Seu carrinho está vazio</p>
+                <Link
+                  href="/produtos"
+                  className="inline-block mt-4 px-6 py-3 bg-[rgb(108,25,29)] text-white rounded-lg hover:bg-[rgb(88,20,24)] transition-colors"
+                >
+                  Continuar Comprando
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {cartItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-xl p-6 flex gap-6 border border-[rgb(229,229,229)]"
+                  >
+                    {/* Imagem do Produto */}
+                    <div className="w-[120px] h-[120px] rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                      <span className="text-xs text-gray-500">Produto</span>
+                    </div>
+
+                    {/* Informações do Produto */}
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-lg font-['Inter'] font-semibold text-black mb-1">
+                          {item.name}
+                        </h3>
+                        <p className="text-sm font-['Inter'] text-gray-600">
+                          Tamanho: {item.size}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        {/* Controles de Quantidade */}
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => updateQuantity(item.id, -1)}
+                            className="w-8 h-8 rounded-lg border border-[rgb(217,217,217)] flex items-center justify-center hover:bg-gray-50 transition-colors"
+                          >
+                            <Minus className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <span className="text-base font-['Inter'] font-medium text-black min-w-[40px] text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.id, 1)}
+                            className="w-8 h-8 rounded-lg border border-[rgb(217,217,217)] flex items-center justify-center hover:bg-gray-50 transition-colors"
+                          >
+                            <Plus className="w-4 h-4 text-gray-600" />
+                          </button>
+                        </div>
+
+                        {/* Preço */}
+                        <div className="flex items-center gap-4">
+                          <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">
+                            R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}
+                          </span>
+
+                          {/* Botão Remover */}
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                            title="Remover item"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Resumo do Pedido - Sidebar */}
+          <div className="w-[400px] flex-shrink-0">
+            <div className="bg-white rounded-xl p-6 border border-[rgb(229,229,229)] sticky top-8">
+              <h2 className="text-xl font-['Inter'] font-bold text-black mb-6">
+                Resumo do Pedido
+              </h2>
+
+              <div className="flex flex-col gap-4 mb-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-['Inter'] text-gray-600">Subtotal</span>
+                  <span className="text-base font-['Inter'] font-medium text-black">
+                    R$ {subtotal.toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-['Inter'] text-gray-600">Frete</span>
+                  <span className="text-base font-['Inter'] font-medium text-[rgb(25,108,43)]">
+                    {frete === 0 ? 'Grátis' : `R$ ${frete.toFixed(2).replace('.', ',')}`}
+                  </span>
+                </div>
+
+                <div className="w-full h-px bg-[rgb(229,229,229)]"></div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-['Inter'] font-bold text-black">Total</span>
+                  <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">
+                    R$ {total.toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+              </div>
+
+              <Link
+                href="/checkout/endereco"
+                className={`w-full h-12 flex items-center justify-center rounded-lg font-['Inter'] font-medium transition-colors ${
+                  cartItems.length === 0
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-[rgb(108,25,29)] text-white hover:bg-[rgb(88,20,24)]'
+                }`}
+                onClick={(e) => {
+                  if (cartItems.length === 0) e.preventDefault()
+                }}
+              >
+                Finalizar Compra
+              </Link>
+
+              <Link
+                href="/produtos"
+                className="block w-full text-center mt-4 text-sm font-['Inter'] text-[rgb(108,25,29)] hover:underline"
+              >
+                Continuar Comprando
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-[rgb(108,25,29)] text-white mt-20">
+        <div className="w-full bg-[rgb(88,20,24)] py-12">
+          <div className="w-full max-w-[1224px] mx-auto px-6">
+            <div className="flex justify-center gap-6">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className="relative w-[220px] h-[220px] rounded-2xl overflow-hidden group cursor-pointer"
+                >
+                  <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-white/50 text-sm">Instagram {i}</div>
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="rgb(108,25,29)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full max-w-[1224px] mx-auto px-6 py-16">
+          <div className="grid grid-cols-3 gap-16 mb-12">
+            <div className="flex flex-col gap-6">
+              <Logo />
+              <div>
+                <h3 className="font-['Inter'] font-semibold text-lg mb-4">Sobre nós</h3>
+                <ul className="space-y-3 text-sm text-[rgb(241,237,237)]">
+                  <li><Link href={"/" as any} className="hover:text-white transition-colors">Nossa história</Link></li>
+                  <li><Link href={"/" as any} className="hover:text-white transition-colors">Nossa história</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-['Inter'] font-semibold text-lg mb-4">Nossos produtos</h3>
+              <ul className="space-y-3 text-sm text-[rgb(241,237,237)]">
+                <li><Link href={"/" as any} className="hover:text-white transition-colors">Cortinas</Link></li>
+                <li><Link href={"/" as any} className="hover:text-white transition-colors">Rolos</Link></li>
+                <li><Link href={"/" as any} className="hover:text-white transition-colors">Trilagem</Link></li>
+                <li><Link href={"/" as any} className="hover:text-white transition-colors">Kitbox</Link></li>
+                <li><Link href={"/" as any} className="hover:text-white transition-colors">Romana</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-['Inter'] font-semibold text-lg mb-4">Links rápidos</h3>
+              <p className="text-sm text-[rgb(241,237,237)] leading-relaxed">
+                Novas persianas chegaram! Descubra estilos exclusivos e transforme seus ambientes com design sob medida.
+              </p>
+            </div>
+          </div>
+
+          <div className="border-t border-white/20 pt-8">
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-[rgb(241,237,237)] font-['Inter']">
+                © 2025 By Rosa Chic, All Rights Reserved.
+              </p>
+              <div className="flex gap-8 text-sm text-[rgb(241,237,237)]">
+                <Link href={"/" as any} className="hover:text-white transition-colors">Termos e Condições</Link>
+                <Link href={"/" as any} className="hover:text-white transition-colors">Política de privacidade</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
