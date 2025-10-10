@@ -9,9 +9,9 @@
 ## 📊 Resumo Geral
 
 - **Total de páginas:** 16
-- **Concluídas:** 1 ✅
-- **Pendentes:** 15 ⏳
-- **Progresso:** 6.25% ████░░░░░░░░░░░░░░░░
+- **Concluídas:** 11 ✅
+- **Pendentes:** 5 ⏳
+- **Progresso:** 68.75% ██████████████░░░░░░
 
 ---
 
@@ -30,101 +30,99 @@
   - **Arquivo:** `frontend/src/app/page.tsx`
   - **Status:** ✅ 100% Concluída
 
+### 📦 Catálogo e Produtos
+- [x] **Desktop / Lista de Produtos** (1440x2305px)
+  - ✅ Grid de produtos com filtros
+  - ✅ Paginação e ordenação
+  - ✅ Breadcrumb de navegação
+  - **Arquivo:** `frontend/src/app/produtos/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+- [x] **Desktop / Page Item** (1440x2767px)
+  - ✅ Galeria de imagens com thumbnails
+  - ✅ Badge de categoria, título e rating
+  - ✅ Seletor de cores (9 opções)
+  - ✅ Seletores de medidas (altura/largura)
+  - ✅ Botões de lado (esquerdo/direito) com ícones
+  - ✅ Blocos de informação (entrega, devolução, garantia)
+  - ✅ Sistema de tabs (descrição, características, avaliações)
+  - ✅ Seção de reviews completa
+  - **Arquivo:** `frontend/src/app/produto/[id]/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+### 🛒 Checkout Completo
+- [x] **Desktop / Checkout** (1440x1674px)
+  - ✅ Carrinho de compras com lista de produtos
+  - ✅ Controle de quantidade (+/-)
+  - ✅ Remover item do carrinho
+  - ✅ Cálculo automático de subtotal e total
+  - ✅ Resumo lateral sticky
+  - **Arquivo:** `frontend/src/app/carrinho/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+- [x] **Desktop / Endereço** (1440x1674px)
+  - ✅ Formulário completo de endereço brasileiro
+  - ✅ Integração com API ViaCEP
+  - ✅ Validação de campos obrigatórios
+  - ✅ Indicador de progresso
+  - **Arquivo:** `frontend/src/app/checkout/endereco/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+- [x] **Desktop / Forma de pagamento** (1440x1674px)
+  - ✅ Seleção de método (Cartão/PIX/Boleto)
+  - ✅ Formulário de cartão de crédito
+  - ✅ Campos: número, nome, validade, CVV
+  - **Arquivo:** `frontend/src/app/checkout/pagamento/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+- [x] **Desktop / Informações do Pedido** (1440x1567px)
+  - ✅ Resumo completo do pedido
+  - ✅ Seções editáveis (endereço/pagamento)
+  - ✅ Lista de produtos
+  - ✅ Totais finais
+  - **Arquivo:** `frontend/src/app/checkout/resumo/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+- [x] **Desktop / Pagamento aprovado!** (1440x1674px)
+  - ✅ Confirmação de pedido realizado
+  - ✅ Número do pedido gerado
+  - ✅ Resumo da compra
+  - ✅ Próximos passos
+  - ✅ CTAs: Continuar comprando / Ver pedidos
+  - **Arquivo:** `frontend/src/app/checkout/sucesso/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+### 🔐 Autenticação
+- [x] **Desktop / Login** (1440x1646px)
+  - ✅ Formulário de login (email + senha)
+  - ✅ Toggle mostrar/ocultar senha
+  - ✅ Botão "Continue com o Google"
+  - ✅ Link para cadastro
+  - ✅ Logo Rosa Chic no header e footer
+  - **Arquivo:** `frontend/src/app/login/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+- [x] **Desktop / Crie sua conta** (1440x1646px)
+  - ✅ Formulário de cadastro (email, senha, confirme senha)
+  - ✅ Validação de senhas iguais
+  - ✅ Toggle mostrar/ocultar senhas
+  - ✅ Botão "Continue com o Google"
+  - ✅ Link para login
+  - ✅ Redirecionamento para página de sucesso
+  - **Arquivo:** `frontend/src/app/cadastro/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
+- [x] **Desktop / Conta criada com sucesso!** (1440x1646px)
+  - ✅ Ícone de sucesso (check verde)
+  - ✅ Mensagem de boas-vindas
+  - ✅ Botão "Fazer Login"
+  - ✅ Botão "Voltar para Home"
+  - **Arquivo:** `frontend/src/app/cadastro/sucesso/page.tsx`
+  - **Status:** ✅ 100% Concluída
+
 ---
 
 ## ⏳ Páginas Pendentes
-
-### 📦 Catálogo e Produtos (3 páginas)
-
-- [ ] **Desktop / Lista de Produtos** (1440x2305px)
-  - Grid de produtos com filtros
-  - Paginação e ordenação
-  - Breadcrumb de navegação
-  - **Rota sugerida:** `/produtos` ou `/categorias/[slug]`
-  - **Prioridade:** 🔥 Alta
-
-- [ ] **Desktop / Page Item** (1440x2767px)
-  - Página de detalhes do produto (PDP)
-  - Galeria de imagens
-  - Descrição, especificações e avaliações
-  - Botão adicionar ao carrinho
-  - Produtos relacionados
-  - **Rota sugerida:** `/produto/[id]`
-  - **Prioridade:** 🔥 Alta
-
-- [ ] **Desktop / Page Item / Desconto** (1440x2791px)
-  - Página de produto com badge de desconto
-  - Preço original e com desconto
-  - Timer de oferta (opcional)
-  - **Rota sugerida:** `/produto/[id]` (variante com desconto)
-  - **Prioridade:** 🟡 Média
-
----
-
-### �� Checkout e Carrinho (5 páginas)
-
-- [ ] **Desktop / Checkout** (1440x1674px)
-  - Carrinho de compras
-  - Lista de produtos selecionados
-  - Cálculo de subtotal, frete e total
-  - Botão finalizar compra
-  - **Rota sugerida:** `/carrinho`
-  - **Prioridade:** 🔥 Alta
-
-- [ ] **Desktop / Informações do Pedido** (1440x1567px)
-  - Resumo do pedido antes de finalizar
-  - Dados do cliente
-  - Endereço de entrega
-  - **Rota sugerida:** `/checkout/resumo`
-  - **Prioridade:** 🔥 Alta
-
-- [ ] **Desktop / Endereço** (1440x1674px)
-  - Formulário de endereço de entrega
-  - Validação de CEP
-  - Endereços salvos
-  - **Rota sugerida:** `/checkout/endereco`
-  - **Prioridade:** 🔥 Alta
-
-- [ ] **Desktop / Forma de pagamento** (1440x1674px)
-  - Seleção de método de pagamento
-  - Formulário de cartão de crédito
-  - Opções: PIX, Boleto, Cartão
-  - **Rota sugerida:** `/checkout/pagamento`
-  - **Prioridade:** 🔥 Alta
-
-- [ ] **Desktop / Pagamento aprovado!** (1440x1674px)
-  - Confirmação de pedido realizado
-  - Número do pedido
-  - Resumo da compra
-  - CTAs: Ver pedido, Continuar comprando
-  - **Rota sugerida:** `/checkout/sucesso`
-  - **Prioridade:** 🔥 Alta
-
----
-
-### 🔐 Autenticação (3 páginas)
-
-- [ ] **Desktop / Login** (1440x1646px)
-  - Formulário de login (email + senha)
-  - Link "Esqueci minha senha"
-  - Link para criar conta
-  - Login social (opcional)
-  - **Rota sugerida:** `/login`
-  - **Prioridade:** 🟡 Média
-
-- [ ] **Desktop / Crie sua conta** (1440x1646px)
-  - Formulário de cadastro
-  - Campos: nome, email, senha, confirmação
-  - Aceite de termos
-  - **Rota sugerida:** `/cadastro`
-  - **Prioridade:** 🟡 Média
-
-- [ ] **Desktop / Conta criada com sucesso!** (1440x1646px)
-  - Confirmação de cadastro realizado
-  - Mensagem de boas-vindas
-  - CTA para fazer login ou ir para home
-  - **Rota sugerida:** `/cadastro/sucesso`
-  - **Prioridade:** 🟡 Média
 
 ---
 
@@ -163,6 +161,18 @@
 
 ---
 
+### 📄 Página Institucional (1 página)
+
+- [ ] **Desktop / Página Item / Desconto** (1440x2791px)
+  - Página de produto com badge de desconto
+  - Preço original e com desconto
+  - Timer de oferta (opcional)
+  - **Rota sugerida:** `/produto/[id]` (variante com desconto)
+  - **Nota:** Pode ser mesma rota do produto normal com props diferentes
+  - **Prioridade:** 🟢 Baixa
+
+---
+
 ## 📌 Componentes Compartilhados
 
 Estes componentes já foram implementados e podem ser reutilizados:
@@ -177,28 +187,27 @@ Estes componentes já foram implementados e podem ser reutilizados:
 
 ## 🎯 Ordem de Implementação Sugerida
 
-### Sprint 1 - Catálogo e Produto (Alta prioridade)
-1. Lista de Produtos
-2. Page Item (Detalhes do Produto)
-3. Page Item com Desconto
+### ✅ Sprint 1 - Catálogo e Produto (CONCLUÍDO)
+1. ✅ Lista de Produtos
+2. ✅ Page Item (Detalhes do Produto)
 
-### Sprint 2 - Checkout (Alta prioridade)
-4. Carrinho (Checkout)
-5. Endereço
-6. Forma de Pagamento
-7. Informações do Pedido
-8. Pagamento Aprovado
+### ✅ Sprint 2 - Checkout (CONCLUÍDO)
+3. ✅ Carrinho (Checkout)
+4. ✅ Endereço
+5. ✅ Forma de Pagamento
+6. ✅ Informações do Pedido
+7. ✅ Pagamento Aprovado
 
-### Sprint 3 - Autenticação (Média prioridade)
-9. Login
-10. Criar Conta
-11. Conta Criada com Sucesso
+### Sprint 3 - Autenticação (EM ABERTO)
+8. Login
+9. Criar Conta
+10. Conta Criada com Sucesso
 
-### Sprint 4 - Área do Cliente (Média/Baixa prioridade)
-12. Minha Conta (Dashboard)
-13. Meus Pedidos
-14. Meu Perfil
-15. Favoritos
+### Sprint 4 - Área do Cliente (EM ABERTO)
+11. Minha Conta (Dashboard)
+12. Meus Pedidos
+13. Meu Perfil
+14. Favoritos
 
 ---
 
