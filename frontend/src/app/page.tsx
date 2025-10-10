@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Search, ShoppingCart, User } from 'lucide-react'
 import { Logo } from '@/components/Logo'
+import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { useState } from 'react'
 
 // Header com Logo component
@@ -620,6 +621,9 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Botão Flutuante WhatsApp */}
+      <WhatsAppButton />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Search, ShoppingCart, User, Building2, Sparkles, Phone, MessageCircle } from 'lucide-react'
 import { Logo } from '@/components/Logo'
 import { ChatWidget } from '@/components/ChatWidget'
+import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { useState } from 'react'
 
 export default function ServicosPage() {
@@ -255,6 +256,9 @@ export default function ServicosPage() {
 
       {/* Chat Widget (abre quando clicar no botão) */}
       {showChat && <ChatWidget />}
+
+      {/* Botão Flutuante WhatsApp */}
+      <WhatsAppButton />
 
       {/* Footer */}
       <footer className="bg-[rgb(108,25,29)] text-white mt-20">
