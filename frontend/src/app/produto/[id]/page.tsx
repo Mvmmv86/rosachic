@@ -75,6 +75,14 @@ export default function ProductDetailPage() {
     name: 'Persiana Blackout Kitbox - Preto',
     category: 'Lançamento',
     price: 350.19,
+    originalPrice: null, // VARIÁVEL: Preço original (quando houver desconto) - ex: 450.00
+    discount: null, // VARIÁVEL: Percentual de desconto - ex: 22 (para 22%)
+
+    // ⚠️ EXEMPLO COM DESCONTO: Descomente as linhas abaixo para testar
+    // price: 350.19,
+    // originalPrice: 450.00,
+    // discount: 22,
+
     installments: { amount: 360, count: 6 },
     rating: 4,
     code: 'KIT-BLK-001',
@@ -236,10 +244,17 @@ export default function ProductDetailPage() {
           {/* Informações do Produto - Coluna Direita */}
           <div className="w-[392px] flex flex-col gap-4">
 
-            {/* Badge de Categoria */}
-            <span className="text-sm font-['Inter'] text-white bg-[rgb(184,115,51)] px-3 py-1 rounded-full self-start">
-              {product.category}
-            </span>
+            {/* Badges de Categoria e Desconto */}
+            <div className="flex gap-2">
+              <span className="text-sm font-['Inter'] text-white bg-[rgb(184,115,51)] px-3 py-1 rounded-full">
+                {product.category}
+              </span>
+              {product.discount && (
+                <span className="text-sm font-['Inter'] font-medium text-white bg-[rgb(220,53,69)] px-3 py-1 rounded-full">
+                  -{product.discount}%
+                </span>
+              )}
+            </div>
 
             {/* Título e Rating */}
             <div className="flex flex-col gap-1">
@@ -267,9 +282,20 @@ export default function ProductDetailPage() {
 
             {/* Preço */}
             <div className="flex flex-col gap-1">
-              <span className="text-[32px] font-['Inter'] font-medium text-black leading-[40px]">
-                R$ {product.price.toFixed(2).replace('.', ',')}
-              </span>
+              {product.originalPrice && product.discount ? (
+                <div className="flex flex-col gap-1">
+                  <span className="text-lg font-['Inter'] text-[rgb(98,86,86)] line-through">
+                    R$ {product.originalPrice.toFixed(2).replace('.', ',')}
+                  </span>
+                  <span className="text-[32px] font-['Inter'] font-medium text-[rgb(220,53,69)] leading-[40px]">
+                    R$ {product.price.toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-[32px] font-['Inter'] font-medium text-black leading-[40px]">
+                  R$ {product.price.toFixed(2).replace('.', ',')}
+                </span>
+              )}
               <span className="text-sm font-['Inter'] text-black">
                 Ou R$ {product.installments.amount} em {product.installments.count}X R$ sem juros
               </span>
