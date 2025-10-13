@@ -14,27 +14,6 @@ export default function ResumoPage() {
 
   return (
     <div className="min-h-screen bg-[rgb(241,237,237)]">
-      {/* Header */}
-      <header className="w-full bg-[rgb(108,25,29)] flex py-4 flex-col items-center gap-2">
-        <div className="w-full max-w-[1224px] mx-auto px-6">
-          <div className="flex w-full justify-between items-center">
-            <Logo />
-            <div className="w-[336px] h-[40px] relative">
-              <input type="text" placeholder="Buscar persianas, serviços, etc..." className="w-full h-full px-4 pr-10 rounded-lg border border-[rgb(200,190,191)] bg-white text-sm font-['Inter']" />
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4" />
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="w-9 h-9 bg-white rounded-full border border-[rgb(108,25,29)] flex items-center justify-center">
-                <User className="w-5 h-5 text-[rgb(108,25,29)]" />
-              </button>
-              <button className="w-9 h-9 bg-white rounded-full flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-[rgb(108,25,29)]" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="w-full max-w-[1224px] mx-auto px-6 py-8">
         <Link href="/checkout/pagamento" className="inline-flex items-center gap-2 text-sm font-['Inter'] text-[rgb(108,25,29)] hover:underline mb-6">

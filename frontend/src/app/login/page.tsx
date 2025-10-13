@@ -2,19 +2,35 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import { Logo } from '@/components/Logo'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
+  const router = useRouter()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     email: '',
     senha: ''
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Login:', formData)
+    setError('')
+    setIsLoading(true)
+
+    try {
+      await login(formData.email, formData.senha)
+      router.push('/minha-conta')
+    } catch (err: any) {
+      setError(err.message || 'Erro ao fazer login. Verifique suas credenciais.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -31,6 +47,13 @@ export default function LoginPage() {
           <h1 className="font-sans text-2xl font-semibold text-black mb-8">
             Login
           </h1>
+
+          {/* Mensagem de Erro */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
 
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -78,9 +101,10 @@ export default function LoginPage() {
             {/* Botão Login */}
             <button
               type="submit"
-              className="w-full h-12 bg-[rgb(108,25,29)] text-white font-sans text-sm font-medium rounded-lg hover:bg-[rgb(88,20,24)] transition-colors"
+              disabled={isLoading}
+              className="w-full h-12 bg-[rgb(108,25,29)] text-white font-sans text-sm font-medium rounded-lg hover:bg-[rgb(88,20,24)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {isLoading ? 'Entrando...' : 'Login'}
             </button>
 
             {/* Botão Google */}

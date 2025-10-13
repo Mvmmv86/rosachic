@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { User, Package, Heart, MapPin, CreditCard, ChevronRight } from 'lucide-react'
-import { Header } from './Header'
 
 interface AccountLayoutProps {
   children: React.ReactNode
@@ -22,9 +21,6 @@ export function AccountLayout({ children }: AccountLayoutProps) {
 
   return (
     <div className="min-h-screen bg-[rgb(247,243,239)] flex flex-col">
-      {/* Header Padrão */}
-      <Header />
-
       {/* Main Content */}
       <main className="flex-1">
         <div className="max-w-[1224px] mx-auto px-6 py-12">

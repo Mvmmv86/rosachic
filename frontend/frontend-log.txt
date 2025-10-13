@@ -1,0 +1,12 @@
+
+> rosa-chic-frontend@0.1.0 dev
+> next dev -p 4444 -p 4444
+
+  ▲ Next.js 14.2.0
+  - Local:        http://localhost:4444
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · typedRoutes
+
+ ✓ Starting...
+[?25h

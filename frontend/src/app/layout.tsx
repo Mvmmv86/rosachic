@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { Inter, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
+import { Header } from '@/components/Header'
+import { WhatsAppButton } from '@/components/WhatsAppButton'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -44,7 +47,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${inter.variable} ${cormorant.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased bg-brand-cream text-brand-dark">
-        {children}
+        <AuthProvider>
+          <Header />
+          {children}
+          <WhatsAppButton />
+        </AuthProvider>
       </body>
     </html>
   )

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
 }
 
 datasource db {
@@ -14,12 +15,15 @@ model User {
   name          String
   phone         String?
   cpf           String?   @unique
+  birthDate     DateTime? @map("birth_date")
+  gender        String?
   role          Role      @default(USER)
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   orders        Order[]
   favorites     Favorite[]
+  addresses     Address[]
 
   @@map("users")
 }
@@ -118,6 +122,26 @@ model Favorite {
 
   @@unique([userId, productId])
   @@map("favorites")
+}
+
+model Address {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  name          String    // Ex: "Casa", "Trabalho", etc
+  street        String
+  number        String
+  complement    String?
+  neighborhood  String
+  city          String
+  state         String
+  zipCode       String    @map("zip_code")
+  isDefault     Boolean   @default(false) @map("is_default")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
 }
 
 enum Role {

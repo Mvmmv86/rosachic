@@ -5,28 +5,52 @@ import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Logo } from '@/components/Logo'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function CadastroPage() {
   const router = useRouter()
+  const { register } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
+    phone: '',
     senha: '',
     confirmeSenha: ''
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
 
     if (formData.senha !== formData.confirmeSenha) {
-      alert('As senhas não coincidem!')
+      setError('As senhas não coincidem!')
       return
     }
 
-    console.log('Cadastro:', formData)
-    // Redirecionar para página de sucesso
-    router.push('/cadastro/sucesso')
+    if (formData.senha.length < 6) {
+      setError('A senha deve ter no mínimo 6 caracteres')
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      await register({
+        email: formData.email,
+        password: formData.senha,
+        name: formData.name,
+        phone: formData.phone || undefined,
+      })
+      router.push('/cadastro/sucesso')
+    } catch (err: any) {
+      setError(err.message || 'Erro ao criar conta. Tente novamente.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -44,8 +68,31 @@ export default function CadastroPage() {
             Crie sua conta
           </h1>
 
+          {/* Mensagem de Erro */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">
+              {error}
+            </div>
+          )}
+
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Nome */}
+            <div className="space-y-2">
+              <label htmlFor="name" className="block text-sm font-sans text-black">
+                Nome Completo
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Seu nome completo"
+                className="w-full h-12 px-4 border border-gray-300 rounded-lg font-sans text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
+                required
+              />
+            </div>
+
             {/* E-mail */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-sans text-black">
@@ -59,6 +106,21 @@ export default function CadastroPage() {
                 placeholder="example@email.com"
                 className="w-full h-12 px-4 border border-gray-300 rounded-lg font-sans text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
                 required
+              />
+            </div>
+
+            {/* Telefone (opcional) */}
+            <div className="space-y-2">
+              <label htmlFor="phone" className="block text-sm font-sans text-black">
+                Telefone <span className="text-gray-400">(opcional)</span>
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="(00) 00000-0000"
+                className="w-full h-12 px-4 border border-gray-300 rounded-lg font-sans text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
               />
             </div>
 
@@ -115,9 +177,10 @@ export default function CadastroPage() {
             {/* Botão Criar Conta */}
             <button
               type="submit"
-              className="w-full h-12 bg-[rgb(108,25,29)] text-white font-sans text-sm font-medium rounded-lg hover:bg-[rgb(88,20,24)] transition-colors"
+              disabled={isLoading}
+              className="w-full h-12 bg-[rgb(108,25,29)] text-white font-sans text-sm font-medium rounded-lg hover:bg-[rgb(88,20,24)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Cria Conta
+              {isLoading ? 'Criando conta...' : 'Criar Conta'}
             </button>
 
             {/* Botão Google */}
