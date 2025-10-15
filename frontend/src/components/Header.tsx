@@ -4,11 +4,21 @@ import Link from 'next/link'
 import { Search, ShoppingCart, User, ChevronDown } from 'lucide-react'
 import { Logo } from './Logo'
 import { useState, useEffect, useRef } from 'react'
+import { useCartStore } from '@/store/cart-store'
+import { getImageUrl } from '@/lib/products'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 export function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true) // TODO: Integrar com auth real
-  const [userName, setUserName] = useState('Adriano') // TODO: Pegar do contexto de auth
-  const [cartItemsCount, setCartItemsCount] = useState(3) // TODO: Pegar do contexto de carrinho
+  const { user, isAuthenticated, logout } = useAuth()
+  const router = useRouter()
+  const isLoggedIn = isAuthenticated
+  const userName = user?.name || 'Usuário'
+
+  // Integração com cart-store
+  const { items, getTotalItems, getTotalPrice } = useCartStore()
+  const cartItemsCount = getTotalItems()
+  const cartTotal = getTotalPrice()
 
   // Estados para controlar abertura dos menus
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
@@ -107,7 +117,14 @@ export function Header() {
                         Pagamentos
                       </Link>
                       <div className="border-t border-gray-200 mt-2 pt-2">
-                        <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors">
+                        <button
+                          onClick={() => {
+                            logout()
+                            setIsUserMenuOpen(false)
+                            router.push('/')
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                        >
                           Sair
                         </button>
                       </div>
@@ -152,25 +169,57 @@ export function Header() {
                       <div className="px-4 py-2 border-b border-gray-200">
                         <h3 className="text-sm font-semibold text-gray-800">Seu Carrinho ({cartItemsCount} itens)</h3>
                       </div>
-                      {/* TODO: Mapear itens do carrinho real */}
+                      {/* Mapear itens do carrinho real */}
                       <div className="max-h-[300px] overflow-y-auto">
-                        <div className="px-4 py-3 hover:bg-gray-50 transition-colors">
-                          <div className="flex gap-3">
-                            <div className="w-16 h-16 bg-gray-200 rounded-md flex-shrink-0"></div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-800 line-clamp-2">Persiana Rolô Blackout 1,20x1,60m</p>
-                              <p className="text-xs text-gray-500 mt-1">Qtd: 1</p>
-                              <p className="text-sm font-semibold text-[rgb(108,25,29)] mt-1">R$ 249,90</p>
+                        {items.slice(0, 3).map((item) => {
+                          const itemTotal = item.pricing.totalFinal * item.quantity
+                          return (
+                            <div key={item.id} className="px-4 py-3 hover:bg-gray-50 transition-colors">
+                              <div className="flex gap-3">
+                                <div className="w-16 h-16 bg-gray-200 rounded-md flex-shrink-0 overflow-hidden">
+                                  {item.product.imagens && item.product.imagens.length > 0 ? (
+                                    <img
+                                      src={getImageUrl(item.product.imagens[0])}
+                                      alt={item.product.modelo}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
+                                      Produto
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-gray-800 line-clamp-2">{item.product.modelo}</p>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {item.widthCm}x{item.heightCm}cm • Qtd: {item.quantity}
+                                  </p>
+                                  <p className="text-sm font-semibold text-[rgb(108,25,29)] mt-1">
+                                    R$ {itemTotal.toFixed(2).replace('.', ',')}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
+                          )
+                        })}
+                        {items.length > 3 && (
+                          <div className="px-4 py-2 text-center text-xs text-gray-500">
+                            + {items.length - 3} {items.length - 3 === 1 ? 'item' : 'itens'}
                           </div>
-                        </div>
+                        )}
                       </div>
                       <div className="border-t border-gray-200 px-4 py-3">
                         <div className="flex justify-between mb-3">
-                          <span className="text-sm font-medium text-gray-700">Subtotal:</span>
-                          <span className="text-sm font-bold text-gray-900">R$ 749,70</span>
+                          <span className="text-sm font-medium text-gray-700">Total:</span>
+                          <span className="text-sm font-bold text-gray-900">
+                            R$ {cartTotal.toFixed(2).replace('.', ',')}
+                          </span>
                         </div>
-                        <Link href="/carrinho" className="block w-full bg-[rgb(108,25,29)] text-white text-center py-2 rounded-lg text-sm font-medium hover:bg-[rgb(88,20,24)] transition-colors">
+                        <Link
+                          href="/carrinho"
+                          className="block w-full bg-[rgb(108,25,29)] text-white text-center py-2 rounded-lg text-sm font-medium hover:bg-[rgb(88,20,24)] transition-colors"
+                          onClick={() => setIsCartMenuOpen(false)}
+                        >
                           Ver Carrinho
                         </Link>
                       </div>

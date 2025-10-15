@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, Package, Users, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Package, Users, LogOut, Menu, X, ShoppingCart, TrendingUp, Settings } from 'lucide-react'
 
 export default function DashboardLayout({
   children,
@@ -81,6 +81,22 @@ export default function DashboardLayout({
             </a>
 
             <a
+              href="/dashboard/vendas"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-maroon-50 hover:text-brand-maroon-700 transition"
+            >
+              <TrendingUp size={20} />
+              <span>Vendas</span>
+            </a>
+
+            <a
+              href="/dashboard/pedidos"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-maroon-50 hover:text-brand-maroon-700 transition"
+            >
+              <ShoppingCart size={20} />
+              <span>Pedidos</span>
+            </a>
+
+            <a
               href="/dashboard/products"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-maroon-50 hover:text-brand-maroon-700 transition"
             >
@@ -95,6 +111,17 @@ export default function DashboardLayout({
               <Users size={20} />
               <span>Clientes</span>
             </a>
+
+            <div className="pt-4 mt-4 border-t border-gray-200">
+              <p className="text-xs font-semibold text-gray-400 px-4 mb-2">CONFIGURAÇÕES</p>
+              <a
+                href="/checkout-config"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-maroon-50 hover:text-brand-maroon-700 transition"
+              >
+                <Settings size={20} />
+                <span>Pagamentos</span>
+              </a>
+            </div>
           </nav>
 
           {/* User info & Logout */}

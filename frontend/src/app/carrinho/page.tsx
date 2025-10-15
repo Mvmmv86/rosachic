@@ -1,47 +1,18 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, ShoppingCart, User, Trash2, Plus, Minus } from 'lucide-react'
+import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react'
 import { Logo } from '@/components/Logo'
-import { useState } from 'react'
+import { useCartStore } from '@/store/cart-store'
+import { getImageUrl } from '@/lib/products'
 
 export default function CarrinhoPage() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Persiana Blackout Kitbox - Preto',
-      size: '2,0m x 1,5m',
-      price: 350.19,
-      quantity: 2,
-      image: '/products/produto1.jpg'
-    },
-    {
-      id: 2,
-      name: 'Persiana Rolô Tela Solar 5% - Branca',
-      size: '1,8m x 1,2m',
-      price: 280.50,
-      quantity: 1,
-      image: '/products/produto2.jpg'
-    }
-  ])
+  const { items, updateQuantity, removeItem, getTotalPrice, getSubtotal, getTotalDiscount } = useCartStore()
 
-  const updateQuantity = (id: number, delta: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    )
-  }
-
-  const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id))
-  }
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const frete = 0 // Frete grátis
-  const total = subtotal + frete
+  const subtotal = getSubtotal()
+  const desconto = getTotalDiscount()
+  const frete = 0 // Frete grátis para todos
+  const total = getTotalPrice()
 
   return (
     <div className="min-h-screen bg-[rgb(241,237,237)]">
@@ -52,7 +23,7 @@ export default function CarrinhoPage() {
         <div className="flex gap-6">
           {/* Lista de Produtos - Coluna Principal */}
           <div className="flex-1">
-            {cartItems.length === 0 ? (
+            {items.length === 0 ? (
               <div className="bg-white rounded-xl p-12 text-center">
                 <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <p className="text-lg font-['Inter'] text-gray-600">Seu carrinho está vazio</p>
@@ -65,66 +36,100 @@ export default function CarrinhoPage() {
               </div>
             ) : (
               <div className="flex flex-col gap-4">
-                {cartItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-xl p-6 flex gap-6 border border-[rgb(229,229,229)]"
-                  >
-                    {/* Imagem do Produto */}
-                    <div className="w-[120px] h-[120px] rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                      <span className="text-xs text-gray-500">Produto</span>
-                    </div>
+                {items.map((item) => {
+                  const itemTotal = item.pricing.totalFinal * item.quantity
+                  const hasDiscount = item.pricing.desconto > 0
 
-                    {/* Informações do Produto */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-lg font-['Inter'] font-semibold text-black mb-1">
-                          {item.name}
-                        </h3>
-                        <p className="text-sm font-['Inter'] text-gray-600">
-                          Tamanho: {item.size}
-                        </p>
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-xl p-6 flex gap-6 border border-[rgb(229,229,229)]"
+                    >
+                      {/* Imagem do Produto */}
+                      <div className="w-[120px] h-[120px] rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        {item.product.imagens && item.product.imagens.length > 0 ? (
+                          <img
+                            src={getImageUrl(item.product.imagens[0])}
+                            alt={item.product.modelo}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-xs text-gray-500">Produto</span>
+                        )}
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        {/* Controles de Quantidade */}
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="w-8 h-8 rounded-lg border border-[rgb(217,217,217)] flex items-center justify-center hover:bg-gray-50 transition-colors"
-                          >
-                            <Minus className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <span className="text-base font-['Inter'] font-medium text-black min-w-[40px] text-center">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="w-8 h-8 rounded-lg border border-[rgb(217,217,217)] flex items-center justify-center hover:bg-gray-50 transition-colors"
-                          >
-                            <Plus className="w-4 h-4 text-gray-600" />
-                          </button>
+                      {/* Informações do Produto */}
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-lg font-['Inter'] font-semibold text-black mb-1">
+                            {item.product.modelo}
+                          </h3>
+                          <p className="text-sm font-['Inter'] text-gray-600 mb-1">
+                            Tamanho: {item.widthCm}cm x {item.heightCm}cm ({item.pricing.areaCobravel.toFixed(2)}m²)
+                          </p>
+                          {/* Opcionais selecionados */}
+                          {(item.options.bando || item.options.motor || item.options.installation) && (
+                            <div className="flex gap-2 mt-2">
+                              {item.options.bando && (
+                                <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">Bandô</span>
+                              )}
+                              {item.options.motor && (
+                                <span className="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded">Motor</span>
+                              )}
+                              {item.options.installation && (
+                                <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded">Instalação</span>
+                              )}
+                            </div>
+                          )}
                         </div>
 
-                        {/* Preço */}
-                        <div className="flex items-center gap-4">
-                          <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">
-                            R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}
-                          </span>
+                        <div className="flex items-center justify-between mt-4">
+                          {/* Controles de Quantidade */}
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="w-8 h-8 rounded-lg border border-[rgb(217,217,217)] flex items-center justify-center hover:bg-gray-50 transition-colors"
+                            >
+                              <Minus className="w-4 h-4 text-gray-600" />
+                            </button>
+                            <span className="text-base font-['Inter'] font-medium text-black min-w-[40px] text-center">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="w-8 h-8 rounded-lg border border-[rgb(217,217,217)] flex items-center justify-center hover:bg-gray-50 transition-colors"
+                            >
+                              <Plus className="w-4 h-4 text-gray-600" />
+                            </button>
+                          </div>
 
-                          {/* Botão Remover */}
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                            title="Remover item"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                          {/* Preço */}
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              {hasDiscount && (
+                                <p className="text-sm text-gray-500 line-through">
+                                  R$ {(item.pricing.subtotal * item.quantity).toFixed(2).replace('.', ',')}
+                                </p>
+                              )}
+                              <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">
+                                R$ {itemTotal.toFixed(2).replace('.', ',')}
+                              </span>
+                            </div>
+
+                            {/* Botão Remover */}
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                              title="Remover item"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
@@ -143,6 +148,15 @@ export default function CarrinhoPage() {
                     R$ {subtotal.toFixed(2).replace('.', ',')}
                   </span>
                 </div>
+
+                {desconto > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-base font-['Inter'] text-gray-600">Desconto</span>
+                    <span className="text-base font-['Inter'] font-medium text-green-600">
+                      -R$ {desconto.toFixed(2).replace('.', ',')}
+                    </span>
+                  </div>
+                )}
 
                 <div className="flex justify-between items-center">
                   <span className="text-base font-['Inter'] text-gray-600">Frete</span>
@@ -164,12 +178,12 @@ export default function CarrinhoPage() {
               <Link
                 href="/checkout/endereco"
                 className={`w-full h-12 flex items-center justify-center rounded-lg font-['Inter'] font-medium transition-colors ${
-                  cartItems.length === 0
+                  items.length === 0
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-[rgb(108,25,29)] text-white hover:bg-[rgb(88,20,24)]'
                 }`}
                 onClick={(e) => {
-                  if (cartItems.length === 0) e.preventDefault()
+                  if (items.length === 0) e.preventDefault()
                 }}
               >
                 Finalizar Compra

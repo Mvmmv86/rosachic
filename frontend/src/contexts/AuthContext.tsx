@@ -82,9 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data } = await api.post('/auth/login', { email, password })
 
-      const { access_token, user: userData } = data
+      // O backend retorna "token" e não "access_token"
+      const { token, user: userData } = data
 
-      localStorage.setItem('token', access_token)
+      localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(userData))
       setUser(userData)
     } catch (error: any) {
@@ -97,9 +98,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data } = await api.post('/auth/register', registerData)
 
-      const { access_token, user: userData } = data
+      // O backend retorna "token" e não "access_token"
+      const { token, user: userData } = data
 
-      localStorage.setItem('token', access_token)
+      localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(userData))
       setUser(userData)
     } catch (error: any) {

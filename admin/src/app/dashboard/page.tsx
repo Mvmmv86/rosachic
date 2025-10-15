@@ -2,15 +2,31 @@
 
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
-import { Package, TrendingUp, Eye, Star } from 'lucide-react'
+import { Package, TrendingUp, DollarSign, ShoppingCart, Users, AlertTriangle } from 'lucide-react'
 
-interface Stats {
-  total: number
-  active: number
+interface DashboardStats {
+  sales: {
+    total: { orders: number; revenue: number }
+    today: { orders: number; revenue: number }
+    thisMonth: { orders: number; revenue: number }
+  }
+  orders: {
+    pending: number
+    completed: number
+    cancelled: number
+    byStatus: Array<{ status: string; count: number }>
+  }
+  users: {
+    total: number
+    newThisMonth: number
+  }
+  products: {
+    lowStock: number
+  }
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats>({ total: 0, active: 0 })
+  const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -19,10 +35,8 @@ export default function DashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const { data } = await api.get('/products')
-      const products = data.data || []
-      const active = products.filter((p: any) => p.ativo).length
-      setStats({ total: products.length, active })
+      const { data } = await api.get('/admin/dashboard')
+      setStats(data)
     } catch (error) {
       console.error('Erro ao buscar estatísticas:', error)
     } finally {
@@ -30,39 +44,27 @@ export default function DashboardPage() {
     }
   }
 
-  const statCards = [
-    {
-      title: 'Total de Produtos',
-      value: stats.total,
-      icon: Package,
-      color: 'bg-blue-500',
-      textColor: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-    },
-    {
-      title: 'Produtos Ativos',
-      value: stats.active,
-      icon: TrendingUp,
-      color: 'bg-green-500',
-      textColor: 'text-green-600',
-      bgColor: 'bg-green-50',
-    },
-    {
-      title: 'Produtos Inativos',
-      value: stats.total - stats.active,
-      icon: Eye,
-      color: 'bg-orange-500',
-      textColor: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-    },
-  ]
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-gray-500">Carregando estatísticas...</div>
       </div>
     )
+  }
+
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-red-500">Erro ao carregar estatísticas</div>
+      </div>
+    )
+  }
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value)
   }
 
   return (
@@ -75,24 +77,103 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {statCards.map((card) => (
-          <div
-            key={card.title}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
-          >
-            <div className="flex items-center justify-between">
+      {/* Vendas Stats */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Vendas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Hoje */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{card.title}</p>
-                <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+                <p className="text-sm text-gray-600 mb-1">Hoje</p>
+                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.sales.today.revenue)}</p>
+                <p className="text-sm text-gray-500 mt-1">{stats.sales.today.orders} pedidos</p>
               </div>
-              <div className={`${card.bgColor} p-3 rounded-lg`}>
-                <card.icon className={`${card.textColor}`} size={24} />
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <DollarSign className="text-blue-600" size={24} />
               </div>
             </div>
           </div>
-        ))}
+
+          {/* Este Mês */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Este Mês</p>
+                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.sales.thisMonth.revenue)}</p>
+                <p className="text-sm text-gray-500 mt-1">{stats.sales.thisMonth.orders} pedidos</p>
+              </div>
+              <div className="bg-green-50 p-3 rounded-lg">
+                <TrendingUp className="text-green-600" size={24} />
+              </div>
+            </div>
+          </div>
+
+          {/* Total */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Total Geral</p>
+                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.sales.total.revenue)}</p>
+                <p className="text-sm text-gray-500 mt-1">{stats.sales.total.orders} pedidos</p>
+              </div>
+              <div className="bg-purple-50 p-3 rounded-lg">
+                <DollarSign className="text-purple-600" size={24} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Pedidos e Usuários */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Pedidos Pendentes</p>
+              <p className="text-3xl font-bold text-orange-600">{stats.orders.pending}</p>
+            </div>
+            <div className="bg-orange-50 p-3 rounded-lg">
+              <ShoppingCart className="text-orange-600" size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Pedidos Completos</p>
+              <p className="text-3xl font-bold text-green-600">{stats.orders.completed}</p>
+            </div>
+            <div className="bg-green-50 p-3 rounded-lg">
+              <Package className="text-green-600" size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Total Usuários</p>
+              <p className="text-3xl font-bold text-blue-600">{stats.users.total}</p>
+            </div>
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <Users className="text-blue-600" size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Estoque Baixo</p>
+              <p className="text-3xl font-bold text-red-600">{stats.products.lowStock}</p>
+            </div>
+            <div className="bg-red-50 p-3 rounded-lg">
+              <AlertTriangle className="text-red-600" size={24} />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions */}
@@ -100,17 +181,30 @@ export default function DashboardPage() {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Ações Rápidas
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
-            href="/dashboard/products/new"
-            className="flex items-center gap-3 p-4 rounded-lg border-2 border-brand-maroon-200 hover:border-brand-maroon-500 hover:bg-brand-maroon-50 transition group"
+            href="/dashboard/vendas"
+            className="flex items-center gap-3 p-4 rounded-lg border-2 border-green-200 hover:border-green-500 hover:bg-green-50 transition group"
           >
-            <div className="bg-brand-maroon-100 p-2 rounded-lg group-hover:bg-brand-maroon-200 transition">
-              <Package className="text-brand-maroon-700" size={20} />
+            <div className="bg-green-100 p-2 rounded-lg group-hover:bg-green-200 transition">
+              <DollarSign className="text-green-700" size={20} />
             </div>
             <div>
-              <p className="font-medium text-gray-900">Adicionar Produto</p>
-              <p className="text-sm text-gray-600">Cadastrar novo produto</p>
+              <p className="font-medium text-gray-900">Ver Vendas</p>
+              <p className="text-sm text-gray-600">Relatório detalhado</p>
+            </div>
+          </a>
+
+          <a
+            href="/dashboard/pedidos"
+            className="flex items-center gap-3 p-4 rounded-lg border-2 border-orange-200 hover:border-orange-500 hover:bg-orange-50 transition group"
+          >
+            <div className="bg-orange-100 p-2 rounded-lg group-hover:bg-orange-200 transition">
+              <ShoppingCart className="text-orange-700" size={20} />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">Gerenciar Pedidos</p>
+              <p className="text-sm text-gray-600">{stats.orders.pending} pendentes</p>
             </div>
           </a>
 
@@ -119,11 +213,11 @@ export default function DashboardPage() {
             className="flex items-center gap-3 p-4 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition group"
           >
             <div className="bg-gray-100 p-2 rounded-lg group-hover:bg-gray-200 transition">
-              <Eye className="text-gray-700" size={20} />
+              <Package className="text-gray-700" size={20} />
             </div>
             <div>
               <p className="font-medium text-gray-900">Ver Produtos</p>
-              <p className="text-sm text-gray-600">Gerenciar produtos existentes</p>
+              <p className="text-sm text-gray-600">Gerenciar estoque</p>
             </div>
           </a>
         </div>

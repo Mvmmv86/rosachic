@@ -24,6 +24,7 @@ model User {
   orders        Order[]
   favorites     Favorite[]
   addresses     Address[]
+  cart          Cart?
 
   @@map("users")
 }
@@ -48,8 +49,40 @@ model Product {
 
   orderItems      OrderItem[]
   favorites       Favorite[]
+  cartItems       CartItem[]
 
   @@map("products")
+}
+
+model Cart {
+  id              String      @id @default(uuid())
+  userId          String      @unique @map("user_id")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id              String    @id @default(uuid())
+  cartId          String    @map("cart_id")
+  productId       String    @map("product_id")
+  widthCm         Int       @map("width_cm")
+  heightCm        Int       @map("height_cm")
+  areaCobravel    Float     @map("area_cobravel")
+  pricePerM2      Float     @map("price_per_m2")
+  quantity        Int       @default(1)
+  subtotal        Float
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  cart            Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product         Product   @relation(fields: [productId], references: [id])
+
+  @@map("cart_items")
 }
 
 model Order {
@@ -69,8 +102,41 @@ model Order {
   user            User          @relation(fields: [userId], references: [id])
   items           OrderItem[]
   shipping        Shipping?
+  payment         Payment?
 
   @@map("orders")
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  orderId               String        @unique @map("order_id")
+  mercadoPagoId         String?       @unique @map("mercado_pago_id")
+  preferenceId          String?       @unique @map("preference_id")
+  status                PaymentStatus @default(PENDING)
+  amount                Float
+  paymentMethod         PaymentMethod @map("payment_method")
+  paymentMethodId       String?       @map("payment_method_id")
+  transactionAmount     Float?        @map("transaction_amount")
+  netAmount             Float?        @map("net_amount")
+  mercadoPagoFee        Float?        @map("mercado_pago_fee")
+  payerEmail            String?       @map("payer_email")
+  payerDocument         String?       @map("payer_document")
+  payerName             String?       @map("payer_name")
+  externalReference     String?       @map("external_reference")
+  description           String?
+  pixQrCode             String?       @map("pix_qr_code")
+  pixQrCodeBase64       String?       @map("pix_qr_code_base64")
+  boletoUrl             String?       @map("boleto_url")
+  boletoBarcode         String?       @map("boleto_barcode")
+  approvedAt            DateTime?     @map("approved_at")
+  expiresAt             DateTime?     @map("expires_at")
+  webhookNotifications  String?       @map("webhook_notifications") // JSON array stored as string
+  createdAt             DateTime      @default(now()) @map("created_at")
+  updatedAt             DateTime      @updatedAt @map("updated_at")
+
+  order                 Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
 }
 
 model OrderItem {
@@ -144,6 +210,23 @@ model Address {
   @@map("addresses")
 }
 
+model MercadoPagoConfig {
+  id                String        @id @default(uuid())
+  checkoutMode      CheckoutMode  @default(INTERNAL) @map("checkout_mode")
+  publicKey         String        @default("") @map("public_key")
+  accessToken       String        @default("") @map("access_token")
+  webhookSecret     String?       @map("webhook_secret")
+  isProduction      Boolean       @default(false) @map("is_production")
+  notificationUrl   String?       @map("notification_url")
+  successUrl        String        @default("/checkout/sucesso") @map("success_url")
+  failureUrl        String        @default("/checkout/falha") @map("failure_url")
+  pendingUrl        String        @default("/checkout/pendente") @map("pending_url")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  @@map("mercadopago_config")
+}
+
 enum Role {
   USER
   ADMIN
@@ -181,4 +264,12 @@ enum PaymentStatus {
   APPROVED
   REJECTED
   REFUNDED
+}
+
+enum CheckoutMode {
+  INTERNAL      // Checkout próprio do site (páginas resumo/sucesso)
+  MERCADOPAGO   // Redireciona para Mercado Pago
+  PAGSEGURO     // Futuro: PagSeguro
+  STRIPE        // Futuro: Stripe
+  PAYPAL        // Futuro: PayPal
 }

@@ -1,13 +1,21 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, ShoppingCart, User, ChevronLeft } from 'lucide-react'
-import { Logo } from '@/components/Logo'
-import { useState } from 'react'
+import { ChevronLeft } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useCartStore } from '@/store/cart-store'
+import { useCheckoutStore } from '@/store/checkout-store'
+import { formatPrice } from '@/lib/products'
+import { useAuth } from '@/contexts/AuthContext'
+import { api } from '@/lib/api'
 
 export default function EnderecoPage() {
   const router = useRouter()
+  const { items } = useCartStore()
+  const { setAddress } = useCheckoutStore()
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
+
   const [formData, setFormData] = useState({
     cep: '',
     rua: '',
@@ -18,9 +26,115 @@ export default function EnderecoPage() {
     estado: ''
   })
 
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [showModal, setShowModal] = useState(false)
+  const [saveAsDefault, setSaveAsDefault] = useState(true)
+
+  // Verificar autenticação ao carregar
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      // Salvar URL atual para retornar após login
+      localStorage.setItem('redirectAfterLogin', '/checkout/endereco')
+      router.push('/login')
+    }
+  }, [authLoading, isAuthenticated, router])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Salvar endereço e ir para página de pagamento
+    // Mostrar modal de confirmação
+    setShowModal(true)
+  }
+
+  const handleConfirmSave = async () => {
+    setLoading(true)
+    setError('')
+    setShowModal(false)
+
+    try {
+      // 1. Verificar se está autenticado
+      if (!isAuthenticated) {
+        setError('Você precisa estar logado para continuar')
+        localStorage.setItem('redirectAfterLogin', '/checkout/endereco')
+        router.push('/login')
+        return
+      }
+
+      // 2. Preparar dados do endereço
+      const addressData = {
+        name: 'Endereço de Entrega',
+        street: formData.rua,
+        number: formData.numero,
+        complement: formData.complemento || undefined,
+        neighborhood: formData.bairro,
+        city: formData.cidade,
+        state: formData.estado,
+        zipCode: formData.cep,
+        isDefault: saveAsDefault
+      }
+
+      console.log('📦 Salvando endereço:', addressData)
+
+      // Debug: verificar token
+      const token = localStorage.getItem('token')
+      console.log('🔑 Token no localStorage:', token ? token.substring(0, 50) + '...' : 'NENHUM TOKEN')
+      console.log('👤 Usuário autenticado:', user)
+      console.log('✅ isAuthenticated:', isAuthenticated)
+
+      // 3. Salvar endereço no backend usando api (com interceptors)
+      console.log('📡 Fazendo requisição POST para /users/me/addresses')
+      const response = await api.post('/users/me/addresses', addressData)
+      console.log('✅ Resposta recebida:', response.status)
+      const savedAddress = response.data
+
+      console.log('✅ Endereço salvo com sucesso:', savedAddress)
+
+      // 4. Salvar no checkout store (para usar nas próximas páginas)
+      setAddress({
+        id: savedAddress.id,
+        cep: formData.cep,
+        rua: formData.rua,
+        numero: formData.numero,
+        complemento: formData.complemento,
+        bairro: formData.bairro,
+        cidade: formData.cidade,
+        estado: formData.estado
+      })
+
+      // 5. Ir para página de pagamento
+      router.push('/checkout/pagamento')
+    } catch (err: any) {
+      console.error('❌ Erro ao salvar endereço:', err)
+
+      // Verificar se é erro 401 (token expirado)
+      if (err.response?.status === 401) {
+        setError('Sua sessão expirou. Por favor, faça login novamente.')
+        localStorage.setItem('redirectAfterLogin', '/checkout/endereco')
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
+      } else {
+        const errorMessage = err.response?.data?.message || err.message || 'Erro ao salvar endereço. Tente novamente.'
+        setError(errorMessage)
+        setShowModal(true) // Mostrar o modal novamente para o usuário tentar de novo
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleContinueWithoutSaving = () => {
+    setShowModal(false)
+    // Apenas salvar no checkout store (não no backend)
+    setAddress({
+      cep: formData.cep,
+      rua: formData.rua,
+      numero: formData.numero,
+      complemento: formData.complemento,
+      bairro: formData.bairro,
+      cidade: formData.cidade,
+      estado: formData.estado
+    })
     router.push('/checkout/pagamento')
   }
 
@@ -44,7 +158,22 @@ export default function EnderecoPage() {
     }
   }
 
-  const cartTotal = 980.88
+  // Calcular total do carrinho baseado nos itens reais
+  const cartTotal = items.reduce((total, item) => {
+    return total + (item.pricing.totalFinal * item.quantity)
+  }, 0)
+
+  // Mostrar loading enquanto verifica autenticação
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[rgb(241,237,237)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(108,25,29)] mx-auto mb-4"></div>
+          <p className="text-base font-['Inter'] text-gray-600">Verificando autenticação...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[rgb(241,237,237)]">
@@ -204,6 +333,13 @@ export default function EnderecoPage() {
                 </div>
               </div>
 
+              {/* Mensagem de erro */}
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm font-['Inter'] text-red-600">{error}</p>
+                </div>
+              )}
+
               {/* Botões */}
               <div className="flex gap-4">
                 <Link
@@ -214,9 +350,10 @@ export default function EnderecoPage() {
                 </Link>
                 <button
                   type="submit"
-                  className="flex-1 h-12 flex items-center justify-center rounded-lg bg-[rgb(108,25,29)] font-['Inter'] font-medium text-white hover:bg-[rgb(88,20,24)] transition-colors"
+                  disabled={loading}
+                  className="flex-1 h-12 flex items-center justify-center rounded-lg bg-[rgb(108,25,29)] font-['Inter'] font-medium text-white hover:bg-[rgb(88,20,24)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Continuar
+                  {loading ? 'Salvando...' : 'Continuar'}
                 </button>
               </div>
             </form>
@@ -233,7 +370,7 @@ export default function EnderecoPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-base font-['Inter'] text-gray-600">Subtotal</span>
                   <span className="text-base font-['Inter'] font-medium text-black">
-                    R$ 980,88
+                    {formatPrice(cartTotal)}
                   </span>
                 </div>
 
@@ -249,7 +386,7 @@ export default function EnderecoPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-['Inter'] font-bold text-black">Total</span>
                   <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">
-                    R$ {cartTotal.toFixed(2).replace('.', ',')}
+                    {formatPrice(cartTotal)}
                   </span>
                 </div>
               </div>
@@ -301,6 +438,78 @@ export default function EnderecoPage() {
           </div>
         </div>
       </footer>
+
+      {/* Modal de Confirmação */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 className="text-xl font-['Inter'] font-bold text-black mb-4">
+              Salvar Endereço
+            </h3>
+
+            <p className="text-base font-['Inter'] text-gray-600 mb-6">
+              Deseja salvar este endereço para compras futuras?
+            </p>
+
+            {/* Resumo do endereço */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <p className="text-sm font-['Inter'] text-gray-700">
+                <strong>CEP:</strong> {formData.cep}
+              </p>
+              <p className="text-sm font-['Inter'] text-gray-700">
+                <strong>Endereço:</strong> {formData.rua}, {formData.numero}
+                {formData.complemento && ` - ${formData.complemento}`}
+              </p>
+              <p className="text-sm font-['Inter'] text-gray-700">
+                <strong>Bairro:</strong> {formData.bairro}
+              </p>
+              <p className="text-sm font-['Inter'] text-gray-700">
+                <strong>Cidade:</strong> {formData.cidade} - {formData.estado}
+              </p>
+            </div>
+
+            {/* Checkbox para salvar como principal */}
+            <label className="flex items-center gap-3 mb-6 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={saveAsDefault}
+                onChange={(e) => setSaveAsDefault(e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-[rgb(108,25,29)] focus:ring-[rgb(108,25,29)]"
+              />
+              <span className="text-sm font-['Inter'] text-gray-700">
+                Definir como endereço principal
+              </span>
+            </label>
+
+            {/* Botões */}
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleConfirmSave}
+                disabled={loading}
+                className="w-full h-12 flex items-center justify-center rounded-lg bg-[rgb(108,25,29)] font-['Inter'] font-medium text-white hover:bg-[rgb(88,20,24)] transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Salvando...' : 'Sim, Salvar Endereço'}
+              </button>
+
+              <button
+                onClick={handleContinueWithoutSaving}
+                disabled={loading}
+                className="w-full h-12 flex items-center justify-center rounded-lg border border-[rgb(217,217,217)] font-['Inter'] font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Não Salvar (Usar Apenas Nesta Compra)
+              </button>
+
+              <button
+                onClick={() => setShowModal(false)}
+                disabled={loading}
+                className="w-full h-10 flex items-center justify-center font-['Inter'] text-sm text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

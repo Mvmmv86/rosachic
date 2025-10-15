@@ -1,61 +1,158 @@
 'use client'
 
 import { AccountLayout } from '@/components/AccountLayout'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MapPin, Plus, Pencil, Trash2 } from 'lucide-react'
+import { api } from '@/lib/api'
 
 interface Address {
-  id: number
-  nome: string
-  cep: string
-  endereco: string
-  numero: string
-  complemento: string
-  bairro: string
-  cidade: string
-  estado: string
-  principal: boolean
+  id: string
+  name: string
+  street: string
+  number: string
+  complement?: string
+  neighborhood: string
+  city: string
+  state: string
+  zipCode: string
+  isDefault: boolean
 }
 
 export default function EnderecosPage() {
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: 1,
-      nome: 'Casa',
-      cep: '88015-100',
-      endereco: 'Rua Felipe Schmidt',
-      numero: '123',
-      complemento: 'Apt 401',
-      bairro: 'Centro',
-      cidade: 'Florianópolis',
-      estado: 'SC',
-      principal: true
-    },
-    {
-      id: 2,
-      nome: 'Trabalho',
-      cep: '88010-000',
-      endereco: 'Av. Beira Mar Norte',
-      numero: '456',
-      complemento: 'Sala 12',
-      bairro: 'Centro',
-      cidade: 'Florianópolis',
-      estado: 'SC',
-      principal: false
-    }
-  ])
-
+  const [addresses, setAddresses] = useState<Address[]>([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [saving, setSaving] = useState(false)
 
-  const handleDelete = (id: number) => {
-    setAddresses(addresses.filter(addr => addr.id !== id))
+  // Dados do formulário
+  const [formData, setFormData] = useState({
+    name: '',
+    zipCode: '',
+    street: '',
+    number: '',
+    complement: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    isDefault: false
+  })
+
+  const [loadingCep, setLoadingCep] = useState(false)
+
+  useEffect(() => {
+    fetchAddresses()
+  }, [])
+
+  const fetchAddresses = async () => {
+    try {
+      const response = await api.get('/users/me/addresses')
+      setAddresses(response.data)
+    } catch (error) {
+      console.error('Erro ao buscar endereços:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleSetPrincipal = (id: number) => {
-    setAddresses(addresses.map(addr => ({
-      ...addr,
-      principal: addr.id === id
-    })))
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este endereço?')) return
+
+    try {
+      await api.delete(`/users/me/addresses/${id}`)
+      await fetchAddresses()
+    } catch (error) {
+      console.error('Erro ao excluir endereço:', error)
+      alert('Erro ao excluir endereço')
+    }
+  }
+
+  const handleSetPrincipal = async (id: string) => {
+    try {
+      await api.put(`/users/me/addresses/${id}`, { isDefault: true })
+      await fetchAddresses()
+    } catch (error) {
+      console.error('Erro ao definir endereço principal:', error)
+      alert('Erro ao definir endereço principal')
+    }
+  }
+
+  const handleCepChange = async (cep: string) => {
+    const cleanCep = cep.replace(/\D/g, '')
+    setFormData({ ...formData, zipCode: cleanCep })
+
+    if (cleanCep.length === 8) {
+      setLoadingCep(true)
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+        const data = await response.json()
+
+        if (!data.erro) {
+          setFormData({
+            ...formData,
+            zipCode: cleanCep,
+            street: data.logradouro || '',
+            neighborhood: data.bairro || '',
+            city: data.localidade || '',
+            state: data.uf || '',
+          })
+        }
+      } catch (error) {
+        console.error('Erro ao buscar CEP:', error)
+      } finally {
+        setLoadingCep(false)
+      }
+    }
+  }
+
+  const handleSaveAddress = async () => {
+    if (!formData.name || !formData.zipCode || !formData.street || !formData.number ||
+        !formData.neighborhood || !formData.city || !formData.state) {
+      alert('Por favor, preencha todos os campos obrigatórios')
+      return
+    }
+
+    setSaving(true)
+    try {
+      await api.post('/users/me/addresses', formData)
+      await fetchAddresses()
+      setShowForm(false)
+      setFormData({
+        name: '',
+        zipCode: '',
+        street: '',
+        number: '',
+        complement: '',
+        neighborhood: '',
+        city: '',
+        state: '',
+        isDefault: false
+      })
+      alert('Endereço salvo com sucesso!')
+    } catch (error: any) {
+      console.error('Erro ao salvar endereço:', error)
+
+      if (error.response?.status === 401) {
+        alert('Sua sessão expirou. Por favor, faça login novamente.')
+        window.location.href = '/login'
+      } else {
+        alert('Erro ao salvar endereço: ' + (error.response?.data?.message || error.message))
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <AccountLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(108,25,29)]"></div>
+            <p className="mt-4 text-gray-600">Carregando endereços...</p>
+          </div>
+        </div>
+      </AccountLayout>
+    )
   }
 
   return (
@@ -82,10 +179,12 @@ export default function EnderecosPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <label className="block font-sans text-sm text-[rgb(119,105,106)] mb-2">
-                  Nome do endereço
+                  Nome do endereço *
                 </label>
                 <input
                   type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ex: Casa, Trabalho, etc."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
                 />
@@ -93,33 +192,41 @@ export default function EnderecosPage() {
 
               <div>
                 <label className="block font-sans text-sm text-[rgb(119,105,106)] mb-2">
-                  CEP
+                  CEP *
                 </label>
                 <input
                   type="text"
+                  value={formData.zipCode}
+                  onChange={(e) => handleCepChange(e.target.value)}
                   placeholder="00000-000"
+                  maxLength={8}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
                 />
+                {loadingCep && <p className="text-xs text-gray-500 mt-1">Buscando CEP...</p>}
               </div>
 
               <div>
                 <label className="block font-sans text-sm text-[rgb(119,105,106)] mb-2">
-                  Estado
+                  Estado *
                 </label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent">
-                  <option value="">Selecione</option>
-                  <option value="SC">Santa Catarina</option>
-                  <option value="PR">Paraná</option>
-                  <option value="RS">Rio Grande do Sul</option>
-                </select>
+                <input
+                  type="text"
+                  value={formData.state}
+                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  maxLength={2}
+                  placeholder="UF"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
+                />
               </div>
 
               <div className="col-span-2">
                 <label className="block font-sans text-sm text-[rgb(119,105,106)] mb-2">
-                  Endereço
+                  Rua *
                 </label>
                 <input
                   type="text"
+                  value={formData.street}
+                  onChange={(e) => setFormData({ ...formData, street: e.target.value })}
                   placeholder="Rua, Avenida, etc."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
                 />
@@ -127,10 +234,12 @@ export default function EnderecosPage() {
 
               <div>
                 <label className="block font-sans text-sm text-[rgb(119,105,106)] mb-2">
-                  Número
+                  Número *
                 </label>
                 <input
                   type="text"
+                  value={formData.number}
+                  onChange={(e) => setFormData({ ...formData, number: e.target.value })}
                   placeholder="123"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
                 />
@@ -142,6 +251,8 @@ export default function EnderecosPage() {
                 </label>
                 <input
                   type="text"
+                  value={formData.complement}
+                  onChange={(e) => setFormData({ ...formData, complement: e.target.value })}
                   placeholder="Apt, Bloco, etc."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
                 />
@@ -149,22 +260,42 @@ export default function EnderecosPage() {
 
               <div>
                 <label className="block font-sans text-sm text-[rgb(119,105,106)] mb-2">
-                  Bairro
+                  Bairro *
                 </label>
                 <input
                   type="text"
+                  value={formData.neighborhood}
+                  onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                  placeholder="Nome do bairro"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
                 />
               </div>
 
               <div>
                 <label className="block font-sans text-sm text-[rgb(119,105,106)] mb-2">
-                  Cidade
+                  Cidade *
                 </label>
                 <input
                   type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  placeholder="Nome da cidade"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg font-sans text-base focus:outline-none focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-transparent"
                 />
+              </div>
+
+              <div className="col-span-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.isDefault}
+                    onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
+                    className="w-4 h-4 text-[rgb(108,25,29)] border-gray-300 rounded focus:ring-[rgb(108,25,29)]"
+                  />
+                  <span className="font-sans text-sm text-gray-700">
+                    Definir como endereço principal
+                  </span>
+                </label>
               </div>
             </div>
 
@@ -175,8 +306,12 @@ export default function EnderecosPage() {
               >
                 Cancelar
               </button>
-              <button className="px-6 py-2 bg-[rgb(108,25,29)] text-white font-sans text-sm font-medium rounded-lg hover:bg-[rgb(88,20,24)] transition-colors">
-                Salvar Endereço
+              <button
+                onClick={handleSaveAddress}
+                disabled={saving}
+                className="px-6 py-2 bg-[rgb(108,25,29)] text-white font-sans text-sm font-medium rounded-lg hover:bg-[rgb(88,20,24)] transition-colors disabled:opacity-50"
+              >
+                {saving ? 'Salvando...' : 'Salvar Endereço'}
               </button>
             </div>
           </div>
@@ -197,29 +332,29 @@ export default function EnderecosPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-sans text-lg font-semibold text-black">
-                        {address.nome}
+                        {address.name}
                       </h3>
-                      {address.principal && (
+                      {address.isDefault && (
                         <span className="px-2 py-1 bg-[rgb(108,25,29)] text-white text-xs font-sans rounded">
                           Principal
                         </span>
                       )}
                     </div>
                     <p className="font-sans text-sm text-gray-700">
-                      {address.endereco}, {address.numero}
-                      {address.complemento && ` - ${address.complemento}`}
+                      {address.street}, {address.number}
+                      {address.complement && ` - ${address.complement}`}
                     </p>
                     <p className="font-sans text-sm text-gray-700">
-                      {address.bairro} - {address.cidade}/{address.estado}
+                      {address.neighborhood} - {address.city}/{address.state}
                     </p>
                     <p className="font-sans text-sm text-gray-700">
-                      CEP: {address.cep}
+                      CEP: {address.zipCode}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex gap-2">
-                  {!address.principal && (
+                  {!address.isDefault && (
                     <button
                       onClick={() => handleSetPrincipal(address.id)}
                       className="px-4 py-2 text-[rgb(108,25,29)] font-sans text-sm hover:bg-gray-100 rounded-lg transition-colors"

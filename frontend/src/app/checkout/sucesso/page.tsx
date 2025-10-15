@@ -3,9 +3,60 @@
 import Link from 'next/link'
 import { Search, ShoppingCart, User, CheckCircle2 } from 'lucide-react'
 import { Logo } from '@/components/Logo'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { api } from '@/lib/api'
+import { formatPrice } from '@/lib/products'
+
+interface Order {
+  id: string
+  total: number
+  subtotal: number
+  items: any[]
+}
 
 export default function SucessoPage() {
-  const orderNumber = '20250109' + Math.floor(Math.random() * 10000)
+  const searchParams = useSearchParams()
+  const orderId = searchParams.get('orderId')
+  const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadOrder = async () => {
+      try {
+        const id = orderId || localStorage.getItem('pending_order_id')
+
+        if (!id) {
+          console.error('Nenhum ID de pedido encontrado')
+          setLoading(false)
+          return
+        }
+
+        const response = await api.get(`/orders/${id}`)
+        setOrder(response.data)
+
+        // Limpar localStorage após carregar
+        localStorage.removeItem('pending_order_id')
+      } catch (error) {
+        console.error('Erro ao carregar pedido:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadOrder()
+  }, [orderId])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[rgb(241,237,237)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(108,25,29)]"></div>
+          <p className="mt-4 text-gray-600">Carregando informações do pedido...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[rgb(241,237,237)]">
@@ -31,32 +82,42 @@ export default function SucessoPage() {
           {/* Número do Pedido */}
           <div className="bg-[rgb(241,237,237)] rounded-lg p-6 mb-8">
             <p className="text-sm font-['Inter'] text-gray-600 mb-2">Número do Pedido</p>
-            <p className="text-2xl font-['Inter'] font-bold text-[rgb(108,25,29)]">#{orderNumber}</p>
+            <p className="text-2xl font-['Inter'] font-bold text-[rgb(108,25,29)]">
+              #{order?.id || 'Carregando...'}
+            </p>
           </div>
 
           {/* Informações do Pedido */}
-          <div className="bg-[rgb(241,237,237)] rounded-lg p-6 mb-8 text-left">
-            <h2 className="text-lg font-['Inter'] font-bold text-black mb-4">Resumo do Pedido</h2>
+          {order && (
+            <div className="bg-[rgb(241,237,237)] rounded-lg p-6 mb-8 text-left">
+              <h2 className="text-lg font-['Inter'] font-bold text-black mb-4">Resumo do Pedido</h2>
 
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-base font-['Inter'] text-gray-600">Subtotal</span>
-                <span className="text-base font-['Inter'] font-medium text-black">R$ 980,88</span>
-              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-base font-['Inter'] text-gray-600">
+                    Subtotal ({order.items?.length || 0} {order.items?.length === 1 ? 'item' : 'itens'})
+                  </span>
+                  <span className="text-base font-['Inter'] font-medium text-black">
+                    {formatPrice(order.subtotal)}
+                  </span>
+                </div>
 
-              <div className="flex justify-between">
-                <span className="text-base font-['Inter'] text-gray-600">Frete</span>
-                <span className="text-base font-['Inter'] font-medium text-[rgb(25,108,43)]">Grátis</span>
-              </div>
+                <div className="flex justify-between">
+                  <span className="text-base font-['Inter'] text-gray-600">Frete</span>
+                  <span className="text-base font-['Inter'] font-medium text-[rgb(25,108,43)]">Grátis</span>
+                </div>
 
-              <div className="w-full h-px bg-[rgb(217,217,217)]"></div>
+                <div className="w-full h-px bg-[rgb(217,217,217)]"></div>
 
-              <div className="flex justify-between">
-                <span className="text-lg font-['Inter'] font-bold text-black">Total Pago</span>
-                <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">R$ 980,88</span>
+                <div className="flex justify-between">
+                  <span className="text-lg font-['Inter'] font-bold text-black">Total Pago</span>
+                  <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">
+                    {formatPrice(order.total)}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Próximos Passos */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 text-left">

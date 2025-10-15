@@ -1,15 +1,106 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Search, ShoppingCart, User, ChevronLeft } from 'lucide-react'
-import { Logo } from '@/components/Logo'
+import { ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { formatPrice } from '@/lib/products'
+import { useCartStore } from '@/store/cart-store'
+
+interface Order {
+  id: string
+  status: string
+  total: number
+  subtotal: number
+  paymentMethod: string
+  createdAt: string
+  items: any[]
+  shipping: any
+}
 
 export default function ResumoPage() {
   const router = useRouter()
+  const { clearCart } = useCartStore()
+  const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [processingPayment, setProcessingPayment] = useState(false)
 
-  const handleConfirm = () => {
-    router.push('/checkout/sucesso')
+  useEffect(() => {
+    const loadOrder = async () => {
+      try {
+        const orderId = localStorage.getItem('pending_order_id')
+        const token = localStorage.getItem('token')
+
+        if (!orderId || !token) {
+          router.push('/carrinho')
+          return
+        }
+
+        // Buscar detalhes do pedido
+        const response = await fetch(`http://localhost:3001/orders/${orderId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const orderData = await response.json()
+          setOrder(orderData)
+        } else {
+          throw new Error('Pedido não encontrado')
+        }
+      } catch (error) {
+        console.error('Erro ao carregar pedido:', error)
+        router.push('/carrinho')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadOrder()
+  }, [router])
+
+  const handleConfirm = async () => {
+    setProcessingPayment(true)
+
+    try {
+      // Simular processamento de pagamento (2 segundos)
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Limpar carrinho
+      clearCart()
+      localStorage.removeItem('pending_order_id')
+      localStorage.removeItem('checkout_address')
+
+      // Redirecionar para página de sucesso
+      const successUrl = `/checkout/sucesso?orderId=${order?.id}`
+      router.push(successUrl as any)
+    } catch (error) {
+      console.error('Erro ao processar pagamento:', error)
+      alert('Erro ao processar pagamento. Tente novamente.')
+      setProcessingPayment(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[rgb(241,237,237)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(108,25,29)]"></div>
+          <p className="mt-4 text-gray-600">Carregando resumo do pedido...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!order) {
+    return null
+  }
+
+  const paymentMethodNames: Record<string, string> = {
+    PIX: 'PIX',
+    CREDIT_CARD: 'Cartão de Crédito',
+    BOLETO: 'Boleto Bancário',
   }
 
   return (
@@ -32,25 +123,37 @@ export default function ResumoPage() {
               <h2 className="text-xl font-['Inter'] font-bold text-black mb-4">Produtos</h2>
 
               <div className="space-y-4">
-                <div className="flex gap-4 pb-4 border-b border-[rgb(229,229,229)]">
-                  <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex-shrink-0"></div>
-                  <div className="flex-1">
-                    <h3 className="font-['Inter'] font-semibold text-black">Persiana Blackout Kitbox - Preto</h3>
-                    <p className="text-sm text-gray-600">Tamanho: 2,0m x 1,5m</p>
-                    <p className="text-sm text-gray-600">Quantidade: 2</p>
-                  </div>
-                  <span className="font-['Inter'] font-bold text-[rgb(108,25,29)]">R$ 700,38</span>
-                </div>
+                {order.items?.map((item: any, index: number) => {
+                  const productImages = item.product?.imagens ? JSON.parse(item.product.imagens) : []
+                  const firstImage = productImages[0] || '/placeholder-product.jpg'
 
-                <div className="flex gap-4">
-                  <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex-shrink-0"></div>
-                  <div className="flex-1">
-                    <h3 className="font-['Inter'] font-semibold text-black">Persiana Rolô Tela Solar 5% - Branca</h3>
-                    <p className="text-sm text-gray-600">Tamanho: 1,8m x 1,2m</p>
-                    <p className="text-sm text-gray-600">Quantidade: 1</p>
-                  </div>
-                  <span className="font-['Inter'] font-bold text-[rgb(108,25,29)]">R$ 280,50</span>
-                </div>
+                  return (
+                    <div key={index} className={`flex gap-4 ${index < order.items.length - 1 ? 'pb-4 border-b border-[rgb(229,229,229)]' : ''}`}>
+                      <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                        <img
+                          src={firstImage}
+                          alt={item.product?.modelo || 'Produto'}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder-product.jpg'
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-['Inter'] font-semibold text-black">
+                          {item.product?.modelo || 'Produto'}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Tamanho: {item.widthCm}cm × {item.heightCm}cm
+                        </p>
+                        <p className="text-sm text-gray-600">Quantidade: {item.quantity}</p>
+                      </div>
+                      <span className="font-['Inter'] font-bold text-[rgb(108,25,29)]">
+                        {formatPrice(item.subtotal)}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
 
@@ -62,9 +165,15 @@ export default function ResumoPage() {
                   Editar
                 </Link>
               </div>
-              <p className="text-base font-['Inter'] text-gray-800">Rua Example, 123 - Apto 45</p>
-              <p className="text-base font-['Inter'] text-gray-800">Bairro Centro - Curitiba/PR</p>
-              <p className="text-base font-['Inter'] text-gray-800">CEP: 80000-000</p>
+              <p className="text-base font-['Inter'] font-medium text-black">{order.shipping?.recipientName}</p>
+              <p className="text-base font-['Inter'] text-gray-800">
+                {order.shipping?.street}, {order.shipping?.number}
+                {order.shipping?.complement && ` - ${order.shipping.complement}`}
+              </p>
+              <p className="text-base font-['Inter'] text-gray-800">
+                {order.shipping?.neighborhood} - {order.shipping?.city}/{order.shipping?.state}
+              </p>
+              <p className="text-base font-['Inter'] text-gray-800">CEP: {order.shipping?.zipCode}</p>
             </div>
 
             {/* Forma de Pagamento */}
@@ -75,12 +184,9 @@ export default function ResumoPage() {
                   Editar
                 </Link>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-8 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
-                  <span className="text-xs text-white font-bold">VISA</span>
-                </div>
-                <span className="text-base font-['Inter'] text-gray-800">Cartão de crédito terminado em 1234</span>
-              </div>
+              <p className="text-base font-['Inter'] text-gray-800">
+                {paymentMethodNames[order.paymentMethod] || order.paymentMethod}
+              </p>
             </div>
           </div>
 
@@ -91,8 +197,8 @@ export default function ResumoPage() {
 
               <div className="flex flex-col gap-4 mb-6">
                 <div className="flex justify-between">
-                  <span className="text-base font-['Inter'] text-gray-600">Subtotal (2 itens)</span>
-                  <span className="text-base font-['Inter'] font-medium">R$ 980,88</span>
+                  <span className="text-base font-['Inter'] text-gray-600">Subtotal ({order.items?.length || 0} {order.items?.length === 1 ? 'item' : 'itens'})</span>
+                  <span className="text-base font-['Inter'] font-medium">{formatPrice(order.subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-base font-['Inter'] text-gray-600">Frete</span>
@@ -101,15 +207,29 @@ export default function ResumoPage() {
                 <div className="w-full h-px bg-[rgb(229,229,229)]"></div>
                 <div className="flex justify-between">
                   <span className="text-lg font-['Inter'] font-bold">Total</span>
-                  <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">R$ 980,88</span>
+                  <span className="text-xl font-['Inter'] font-bold text-[rgb(108,25,29)]">{formatPrice(order.total)}</span>
                 </div>
+              </div>
+
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-800">
+                  <strong>Checkout Interno:</strong> Ao confirmar, simularemos o processamento do pagamento.
+                </p>
               </div>
 
               <button
                 onClick={handleConfirm}
-                className="w-full h-12 flex items-center justify-center rounded-lg bg-[rgb(108,25,29)] font-['Inter'] font-medium text-white hover:bg-[rgb(88,20,24)] transition-colors"
+                disabled={processingPayment}
+                className="w-full h-12 flex items-center justify-center rounded-lg bg-[rgb(108,25,29)] font-['Inter'] font-medium text-white hover:bg-[rgb(88,20,24)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Finalizar Pedido
+                {processingPayment ? (
+                  <>
+                    <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Processando...
+                  </>
+                ) : (
+                  'Finalizar Pedido'
+                )}
               </button>
 
               <p className="text-xs font-['Inter'] text-gray-500 text-center mt-4">

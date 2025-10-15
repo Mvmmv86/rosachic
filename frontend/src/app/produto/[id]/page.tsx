@@ -1,16 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, ShoppingCart, User, ChevronRight, ChevronLeft } from 'lucide-react'
-import { Logo } from '@/components/Logo'
+import { ShoppingCart, ChevronRight, ChevronLeft, Check, AlertCircle, Info } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { getProductById, calculatePrice, formatPrice, getImageUrl, validateDimensions, type Product } from '@/lib/products'
+import { useCartStore } from '@/store/cart-store'
+import { calculatePrice as calculatePricing, getMaterialFactor } from '@/lib/pricing/calculations'
+import { validateInstallationAvailability } from '@/lib/cep-validator'
 
 export default function ProductDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const productId = params.id as string
 
+  // Cart store
+  const { addItem } = useCartStore()
+
+  // Product state
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -19,9 +26,28 @@ export default function ProductDetailPage() {
   const [selectedWidthCm, setSelectedWidthCm] = useState<number>(0)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
 
+  // Optional services state
+  const [hasBando, setHasBando] = useState(false)
+  const [hasInstallation, setHasInstallation] = useState(false)
+
+  // Feedback state
+  const [addedToCart, setAddedToCart] = useState(false)
+
+  // Installation validation
+  const [userCep, setUserCep] = useState<string | null>(null)
+  const [showInstallationTooltip, setShowInstallationTooltip] = useState(false)
+
   useEffect(() => {
     fetchProduct()
+    // TODO: Buscar CEP do usuário logado do localStorage ou API
+    // Por enquanto, simulando CEP para teste
+    const savedCep = localStorage.getItem('user_cep')
+    setUserCep(savedCep)
   }, [productId])
+
+  // Validar disponibilidade de instalação
+  const installationValidation = validateInstallationAvailability(userCep)
+  const canInstall = installationValidation.isValid
 
   const fetchProduct = async () => {
     try {
@@ -48,8 +74,121 @@ export default function ProductDetailPage() {
     }
   }
 
+  // Função para adicionar ao carrinho
+  const handleAddToCart = () => {
+    if (!product || !selectedWidthCm || !selectedHeightCm || validationErrors.length > 0) {
+      return
+    }
+
+    try {
+      // Calcular pricing completo usando o sistema do frontend
+      const materialFactor = getMaterialFactor(product.material.toLowerCase().replace(/\s+/g, '_') as any) || 1.0
+
+      // DEBUG: Log estado das checkboxes
+      console.log('🔍 DEBUG - Estado das checkboxes:')
+      console.log('  hasBando:', hasBando)
+      console.log('  hasInstallation:', hasInstallation)
+      console.log('  installationPercentage calculado:', hasInstallation ? 8 : 0)
+
+      const pricingInput = {
+        widthCm: selectedWidthCm,
+        heightCm: selectedHeightCm,
+        productId: product.id,
+        pricePerM2: product.valorM2,
+        kMaterial: materialFactor,
+        lossFactor: 1.1,
+        bando: hasBando ? { enabled: true, pricePerMeter: 50 } : { enabled: false, pricePerMeter: 0 },
+        motor: { enabled: false, fixedPrice: 0 },
+        installationPercentage: hasInstallation ? 8 : 0,
+        shippingCost: 0,
+        discountPercentage: 0,
+        maxWidthCm: product.larguraMaxCm,
+        maxHeightCm: product.alturaMaxCm,
+      }
+
+      // DEBUG: Log input completo
+      console.log('📥 DEBUG - Input para calculatePricing:', pricingInput)
+
+      const pricingResult = calculatePricing(pricingInput)
+
+      // DEBUG: Log resultado completo
+      console.log('📤 DEBUG - Resultado do calculatePricing:')
+      console.log('  precoBase:', pricingResult.precoBase)
+      console.log('  subtotal:', pricingResult.subtotal)
+      console.log('  instalacao:', pricingResult.instalacao)
+      console.log('  totalBruto:', pricingResult.totalBruto)
+      console.log('  totalFinal:', pricingResult.totalFinal)
+      console.log('  breakdown completo:', pricingResult.breakdown)
+
+      // Adicionar ao carrinho - converter Product para o formato esperado pelo cart
+      const cartItem = {
+        product: {
+          ...product,
+          restricoes: {
+            areaMinM2: product.areaMinM2,
+            ambiente: product.ambientes as any[]
+          }
+        } as any,
+        widthCm: selectedWidthCm,
+        heightCm: selectedHeightCm,
+        pricing: pricingResult,
+        quantity: 1,
+        options: {
+          bando: hasBando,
+          motor: false,
+          installation: hasInstallation,
+        },
+      }
+
+      // DEBUG: Log item que será adicionado ao carrinho
+      console.log('🛒 DEBUG - Item sendo adicionado ao carrinho:', cartItem)
+
+      addItem(cartItem)
+
+      // Mostrar feedback
+      setAddedToCart(true)
+      setTimeout(() => setAddedToCart(false), 2000)
+
+    } catch (error) {
+      console.error('Erro ao adicionar ao carrinho:', error)
+      alert('Erro ao adicionar ao carrinho. Por favor, tente novamente.')
+    }
+  }
+
+  // Função para comprar agora (adiciona ao carrinho e vai para checkout)
+  const handleBuyNow = () => {
+    handleAddToCart()
+    setTimeout(() => {
+      router.push('/carrinho')
+    }, 300)
+  }
+
+  // Usar a MESMA função de cálculo que o carrinho para evitar divergências
   const calculatedPrice = product && selectedWidthCm > 0 && selectedHeightCm > 0
-    ? calculatePrice(product, selectedWidthCm, selectedHeightCm)
+    ? (() => {
+        try {
+          const materialFactor = getMaterialFactor(product.material.toLowerCase().replace(/\s+/g, '_') as any) || 1.0
+          const result = calculatePricing({
+            widthCm: selectedWidthCm,
+            heightCm: selectedHeightCm,
+            productId: product.id,
+            pricePerM2: product.valorM2,
+            kMaterial: materialFactor,
+            lossFactor: 1.1,
+            bando: { enabled: false, pricePerMeter: 0 },
+            motor: { enabled: false, fixedPrice: 0 },
+            installationPercentage: 0, // Sem instalação no preview
+            shippingCost: 0,
+            discountPercentage: 0,
+            maxWidthCm: product.larguraMaxCm,
+            maxHeightCm: product.alturaMaxCm,
+          })
+          return result.totalFinal
+        } catch (error) {
+          console.error('Erro ao calcular preço:', error)
+          return 0
+        }
+      })()
     : 0
 
   if (loading) {
@@ -198,7 +337,7 @@ export default function ProductDetailPage() {
                     ({(selectedWidthCm / 100).toFixed(2)}m x {(selectedHeightCm / 100).toFixed(2)}m)
                   </span>
                 </p>
-                <Link href="#" className="text-sm font-['Inter'] text-[rgb(43,88,142)] hover:underline">
+                <Link href="/guia-rapido" className="text-sm font-['Inter'] text-[rgb(43,88,142)] hover:underline">
                   Precisa de ajuda para medir? <span className="underline">Veja nosso guia completo</span>
                 </Link>
               </div>
@@ -208,15 +347,18 @@ export default function ProductDetailPage() {
                 <label className="text-sm font-['Inter'] text-black">
                   Selecione a Largura (máx: {product.larguraMaxCm}cm):
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  max={product.larguraMaxCm}
+                <select
                   value={selectedWidthCm || ''}
                   onChange={(e) => handleDimensionChange(parseFloat(e.target.value) || 0, selectedHeightCm)}
-                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black"
-                  placeholder="Largura em cm"
-                />
+                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black cursor-pointer"
+                >
+                  <option value="">Selecione a largura</option>
+                  {Array.from({ length: Math.floor((Math.min(product.larguraMaxCm, 400) - 30) / 5) + 1 }, (_, i) => 30 + i * 5).map((width) => (
+                    <option key={width} value={width}>
+                      {width}cm ({(width / 100).toFixed(2)}m)
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Dropdown Altura */}
@@ -224,15 +366,18 @@ export default function ProductDetailPage() {
                 <label className="text-sm font-['Inter'] text-black">
                   Selecione a Altura (máx: {product.alturaMaxCm}cm):
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  max={product.alturaMaxCm}
+                <select
                   value={selectedHeightCm || ''}
                   onChange={(e) => handleDimensionChange(selectedWidthCm, parseFloat(e.target.value) || 0)}
-                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black"
-                  placeholder="Altura em cm"
-                />
+                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black cursor-pointer"
+                >
+                  <option value="">Selecione a altura</option>
+                  {Array.from({ length: Math.floor((Math.min(product.alturaMaxCm, 400) - 30) / 5) + 1 }, (_, i) => 30 + i * 5).map((height) => (
+                    <option key={height} value={height}>
+                      {height}cm ({(height / 100).toFixed(2)}m)
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Erros de validação */}
@@ -278,9 +423,104 @@ export default function ProductDetailPage() {
 
             <div className="w-full h-px bg-[rgb(200,190,191)]"></div>
 
+            {/* Serviços Opcionais */}
+            <div className="flex flex-col gap-3">
+              <p className="text-sm font-['Inter'] font-medium text-gray-700">
+                Serviços opcionais:
+              </p>
+
+              {/* Bandô */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hasBando}
+                  onChange={(e) => setHasBando(e.target.checked)}
+                  className="w-4 h-4 text-[rgb(108,25,29)] border-gray-300 rounded focus:ring-[rgb(108,25,29)]"
+                />
+                <span className="text-sm font-['Inter'] text-gray-700">
+                  Bandô (+R$ 50,00/metro)
+                </span>
+              </label>
+
+              {/* Instalação com validação */}
+              <div className="flex flex-col gap-2">
+                <label className={`flex items-center gap-2 ${canInstall ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
+                  <input
+                    type="checkbox"
+                    checked={hasInstallation}
+                    disabled={!canInstall}
+                    onChange={(e) => {
+                      if (canInstall) {
+                        setHasInstallation(e.target.checked)
+                      }
+                    }}
+                    className="w-4 h-4 text-[rgb(108,25,29)] border-gray-300 rounded focus:ring-[rgb(108,25,29)] disabled:opacity-50"
+                  />
+                  <span className="text-sm font-['Inter'] text-gray-700 flex items-center gap-1">
+                    Instalação (+8% do subtotal)
+                    <button
+                      type="button"
+                      onMouseEnter={() => setShowInstallationTooltip(true)}
+                      onMouseLeave={() => setShowInstallationTooltip(false)}
+                      className="ml-1"
+                    >
+                      <Info className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                    </button>
+                  </span>
+                </label>
+
+                {/* Tooltip/Alerta de validação */}
+                {showInstallationTooltip && (
+                  <div className={`p-3 rounded-lg border flex items-start gap-2 ${
+                    installationValidation.isValid
+                      ? 'bg-green-50 border-green-200'
+                      : 'bg-yellow-50 border-yellow-200'
+                  }`}>
+                    {installationValidation.isValid ? (
+                      <>
+                        <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-green-700">{installationValidation.message}</p>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-yellow-700">{installationValidation.message}</p>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Alerta permanente se não puder instalar */}
+                {!canInstall && !showInstallationTooltip && (
+                  <div className="p-2 rounded-lg bg-yellow-50 border border-yellow-200 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-yellow-700">
+                      {!userCep
+                        ? 'Cadastre seu endereço em "Minha Conta" para habilitar instalação.'
+                        : 'Instalação disponível apenas para Curitiba.'
+                      }
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="w-full h-px bg-[rgb(200,190,191)]"></div>
+
+            {/* Feedback "Adicionado ao carrinho" */}
+            {addedToCart && (
+              <div className="bg-green-50 p-3 rounded-lg border border-green-500 flex items-center gap-2">
+                <Check className="w-5 h-5 text-green-600" />
+                <span className="text-sm font-['Inter'] text-green-700 font-medium">
+                  Produto adicionado ao carrinho!
+                </span>
+              </div>
+            )}
+
             {/* Botões de Ação */}
             <div className="flex flex-col gap-2">
               <button
+                onClick={handleBuyNow}
                 disabled={validationErrors.length > 0 || !selectedWidthCm || !selectedHeightCm}
                 className="w-full h-[48px] flex items-center justify-center gap-2 rounded-lg bg-[rgb(66,176,90)] hover:bg-[rgb(58,157,80)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -292,6 +532,7 @@ export default function ProductDetailPage() {
               </button>
 
               <button
+                onClick={handleAddToCart}
                 disabled={validationErrors.length > 0 || !selectedWidthCm || !selectedHeightCm}
                 className="w-full h-[48px] flex items-center justify-center gap-2 rounded-lg bg-white border border-[rgb(66,176,90)] hover:bg-[rgb(241,237,237)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
