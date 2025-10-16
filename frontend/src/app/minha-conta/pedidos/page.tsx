@@ -5,6 +5,7 @@ import { Package } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/products'
+import { showToast } from '@/lib/toast'
 
 interface Order {
   id: string
@@ -83,14 +84,14 @@ export default function MeusPedidosPage() {
   const handleCancelOrder = async (orderId: string) => {
     if (!confirm('Tem certeza que deseja cancelar este pedido?')) return
 
-    try {
-      await api.patch(`/orders/${orderId}/cancel`)
-      alert('Pedido cancelado com sucesso!')
-      fetchOrders()
-    } catch (error) {
-      console.error('Erro ao cancelar pedido:', error)
-      alert('Erro ao cancelar pedido')
-    }
+    showToast.promise(
+      api.patch(`/orders/${orderId}/cancel`).then(() => fetchOrders()),
+      {
+        loading: 'Cancelando pedido...',
+        success: 'Pedido cancelado com sucesso!',
+        error: 'Erro ao cancelar pedido',
+      }
+    )
   }
 
   if (loading) {

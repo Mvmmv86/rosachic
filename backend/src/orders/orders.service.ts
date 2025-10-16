@@ -4,13 +4,17 @@ import {
   BadRequestException,
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { EmailService } from '../email/email.service'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto'
 import { OrderStatus } from '@prisma/client'
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   // Criar pedido a partir do carrinho
   async createFromCart(userId: string, createOrderDto: CreateOrderDto) {
@@ -115,8 +119,18 @@ export class OrdersService {
       return newOrder
     })
 
-    // Retornar pedido completo
-    return this.findById(order.id)
+    // Buscar pedido completo
+    const fullOrder = await this.findById(order.id)
+
+    // 📧 Enviar e-mail de confirmação de pedido
+    try {
+      await this.emailService.sendOrderConfirmed(fullOrder)
+    } catch (error) {
+      // Log do erro mas não quebrar o fluxo
+      console.error('❌ Erro ao enviar e-mail de confirmação:', error.message)
+    }
+
+    return fullOrder
   }
 
   // Buscar pedido por ID
@@ -285,6 +299,17 @@ export class OrdersService {
         where: { orderId },
         data: { trackingCode },
       })
+    }
+
+    // 📧 Enviar e-mail baseado no novo status
+    try {
+      if (status === OrderStatus.SHIPPED) {
+        await this.emailService.sendOrderShipped(updatedOrder, trackingCode)
+      } else if (status === OrderStatus.DELIVERED) {
+        await this.emailService.sendOrderDelivered(updatedOrder)
+      }
+    } catch (error) {
+      console.error('❌ Erro ao enviar e-mail de status:', error.message)
     }
 
     return updatedOrder

@@ -9,6 +9,7 @@ import { useCheckoutStore } from '@/store/checkout-store'
 import { formatPrice } from '@/lib/products'
 import { api } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import { CreditCardForm, type CardData } from '@/components/CreditCardForm'
 
 export default function PagamentoPage() {
   const router = useRouter()
@@ -20,6 +21,8 @@ export default function PagamentoPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [checkoutMode, setCheckoutMode] = useState<'INTERNAL' | 'MERCADOPAGO'>('INTERNAL')
+  const [cardData, setCardData] = useState<CardData | null>(null)
+  const [isCardValid, setIsCardValid] = useState(false)
 
   // Calcular total do carrinho
   const cartTotal = items.reduce((total, item) => {
@@ -92,14 +95,28 @@ export default function PagamentoPage() {
       console.log('🛒 Sincronizando carrinho com backend...')
       console.log('🛒 Items no localStorage:', items.length)
 
+      // Limpar carrinho do backend primeiro
+      try {
+        await api.delete('/cart')
+        console.log('🗑️ Carrinho backend limpo')
+      } catch (err) {
+        console.log('ℹ️ Carrinho backend já estava vazio')
+      }
+
+      // Adicionar cada item ao carrinho do backend
       for (const item of items) {
-        console.log(`🛒 Adicionando item ao carrinho backend: ${item.product.modelo}`)
-        await api.post('/cart/items', {
-          productId: item.product.id,
-          widthCm: item.widthCm,
-          heightCm: item.heightCm,
-          quantity: item.quantity,
-        })
+        console.log(`🛒 Adicionando item: ${item.product.modelo}`)
+        try {
+          await api.post('/cart/items', {
+            productId: item.product.id,
+            widthCm: item.widthCm,
+            heightCm: item.heightCm,
+            quantity: item.quantity,
+          })
+        } catch (itemError: any) {
+          console.error(`❌ Erro ao adicionar item ${item.product.modelo}:`, itemError.response?.data?.message || itemError.message)
+          throw new Error(`Erro ao adicionar ${item.product.modelo} ao carrinho: ${itemError.response?.data?.message || itemError.message}`)
+        }
       }
 
       console.log('✅ Carrinho sincronizado com backend')
@@ -250,6 +267,21 @@ export default function PagamentoPage() {
                 </button>
               </div>
 
+              {/* Formulário de Cartão de Crédito */}
+              {paymentMethod === 'CREDIT_CARD' && checkoutMode === 'INTERNAL' && (
+                <div className="mb-8">
+                  <CreditCardForm
+                    onValidCard={(data) => {
+                      setCardData(data)
+                      setIsCardValid(true)
+                    }}
+                    onInvalidCard={() => {
+                      setIsCardValid(false)
+                    }}
+                  />
+                </div>
+              )}
+
               {/* Info do Método Selecionado */}
               <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800">
@@ -310,7 +342,7 @@ export default function PagamentoPage() {
                 </Link>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || (paymentMethod === 'CREDIT_CARD' && checkoutMode === 'INTERNAL' && !isCardValid)}
                   className="flex-1 h-12 flex items-center justify-center rounded-lg bg-[rgb(108,25,29)] font-['Inter'] font-medium text-white hover:bg-[rgb(88,20,24)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Processando...' : 'Ir para Pagamento'}

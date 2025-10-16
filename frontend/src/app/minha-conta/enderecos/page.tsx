@@ -4,6 +4,7 @@ import { AccountLayout } from '@/components/AccountLayout'
 import { useState, useEffect } from 'react'
 import { MapPin, Plus, Pencil, Trash2 } from 'lucide-react'
 import { api } from '@/lib/api'
+import { showToast } from '@/lib/toast'
 
 interface Address {
   id: string
@@ -57,23 +58,25 @@ export default function EnderecosPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Tem certeza que deseja excluir este endereço?')) return
 
-    try {
-      await api.delete(`/users/me/addresses/${id}`)
-      await fetchAddresses()
-    } catch (error) {
-      console.error('Erro ao excluir endereço:', error)
-      alert('Erro ao excluir endereço')
-    }
+    showToast.promise(
+      api.delete(`/users/me/addresses/${id}`).then(() => fetchAddresses()),
+      {
+        loading: 'Excluindo endereço...',
+        success: 'Endereço excluído com sucesso!',
+        error: 'Erro ao excluir endereço',
+      }
+    )
   }
 
   const handleSetPrincipal = async (id: string) => {
-    try {
-      await api.put(`/users/me/addresses/${id}`, { isDefault: true })
-      await fetchAddresses()
-    } catch (error) {
-      console.error('Erro ao definir endereço principal:', error)
-      alert('Erro ao definir endereço principal')
-    }
+    showToast.promise(
+      api.put(`/users/me/addresses/${id}`, { isDefault: true }).then(() => fetchAddresses()),
+      {
+        loading: 'Atualizando...',
+        success: 'Endereço principal atualizado!',
+        error: 'Erro ao definir endereço principal',
+      }
+    )
   }
 
   const handleCepChange = async (cep: string) => {
@@ -107,7 +110,7 @@ export default function EnderecosPage() {
   const handleSaveAddress = async () => {
     if (!formData.name || !formData.zipCode || !formData.street || !formData.number ||
         !formData.neighborhood || !formData.city || !formData.state) {
-      alert('Por favor, preencha todos os campos obrigatórios')
+      showToast.error('Por favor, preencha todos os campos obrigatórios')
       return
     }
 
@@ -127,15 +130,15 @@ export default function EnderecosPage() {
         state: '',
         isDefault: false
       })
-      alert('Endereço salvo com sucesso!')
+      showToast.success('Endereço salvo com sucesso!')
     } catch (error: any) {
       console.error('Erro ao salvar endereço:', error)
 
       if (error.response?.status === 401) {
-        alert('Sua sessão expirou. Por favor, faça login novamente.')
-        window.location.href = '/login'
+        showToast.error('Sua sessão expirou. Por favor, faça login novamente.')
+        setTimeout(() => window.location.href = '/login', 2000)
       } else {
-        alert('Erro ao salvar endereço: ' + (error.response?.data?.message || error.message))
+        showToast.error('Erro ao salvar endereço: ' + (error.response?.data?.message || error.message))
       }
     } finally {
       setSaving(false)

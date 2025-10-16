@@ -4,6 +4,7 @@ import './globals.css'
 import { Header } from '@/components/Header'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -48,6 +49,7 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${inter.variable} ${cormorant.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased bg-brand-cream text-brand-dark">
         <AuthProvider>
+          <Toaster position="top-right" />
           <Header />
           {children}
           <WhatsAppButton />

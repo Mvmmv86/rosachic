@@ -26,6 +26,8 @@ export class CartController {
 
   @Post('items')
   async addItem(@Request() req: any, @Body() addToCartDto: AddToCartDto) {
+    console.log('🛒 Adicionando item ao carrinho:', JSON.stringify(addToCartDto, null, 2));
+    console.log('👤 UserId:', req.user.id);
     return this.cartService.addItem(req.user.id, addToCartDto);
   }
 

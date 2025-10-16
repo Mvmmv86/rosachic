@@ -25,6 +25,7 @@ model User {
   favorites     Favorite[]
   addresses     Address[]
   cart          Cart?
+  savedCards    SavedCard[]
 
   @@map("users")
 }
@@ -208,6 +209,27 @@ model Address {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("addresses")
+}
+
+model SavedCard {
+  id                String    @id @default(uuid())
+  userId            String    @map("user_id")
+
+  // ⚠️ PCI DSS COMPLIANCE - Apenas dados não sensíveis
+  cardToken         String    @map("card_token")          // Token do Mercado Pago (NÃO o número real)
+  lastFourDigits    String    @map("last_four_digits")    // Apenas últimos 4 dígitos
+  brand             String                                // Visa, Mastercard, etc
+  expirationMonth   String    @map("expiration_month")    // MM
+  expirationYear    String    @map("expiration_year")     // YYYY
+  holderName        String    @map("holder_name")         // Nome do titular
+
+  isDefault         Boolean   @default(false) @map("is_default")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("saved_cards")
 }
 
 model MercadoPagoConfig {
