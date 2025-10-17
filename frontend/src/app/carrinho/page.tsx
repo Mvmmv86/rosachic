@@ -11,7 +11,6 @@ export default function CarrinhoPage() {
 
   const subtotal = getSubtotal()
   const desconto = getTotalDiscount()
-  const frete = 0 // Frete grátis para todos
   const total = getTotalPrice()
 
   return (

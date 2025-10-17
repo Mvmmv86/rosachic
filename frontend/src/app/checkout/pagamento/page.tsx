@@ -9,7 +9,7 @@ import { useCheckoutStore } from '@/store/checkout-store'
 import { formatPrice } from '@/lib/products'
 import { api } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
-import { CreditCardForm, type CardData } from '@/components/CreditCardForm'
+import { CreditCardForm } from '@/components/CreditCardForm'
 
 export default function PagamentoPage() {
   const router = useRouter()
@@ -21,7 +21,6 @@ export default function PagamentoPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [checkoutMode, setCheckoutMode] = useState<'INTERNAL' | 'MERCADOPAGO'>('INTERNAL')
-  const [cardData, setCardData] = useState<CardData | null>(null)
   const [isCardValid, setIsCardValid] = useState(false)
 
   // Calcular total do carrinho
@@ -271,8 +270,7 @@ export default function PagamentoPage() {
               {paymentMethod === 'CREDIT_CARD' && checkoutMode === 'INTERNAL' && (
                 <div className="mb-8">
                   <CreditCardForm
-                    onValidCard={(data) => {
-                      setCardData(data)
+                    onValidCard={() => {
                       setIsCardValid(true)
                     }}
                     onInvalidCard={() => {

@@ -36,7 +36,7 @@ export function AccountLayout({ children }: AccountLayoutProps) {
                     return (
                       <Link
                         key={item.href}
-                        href={item.href}
+                        href={item.href as any}
                         className={`flex items-center gap-3 px-4 py-3 rounded-lg font-sans text-sm transition-colors ${
                           isActive
                             ? 'bg-[rgb(108,25,29)] text-white'

@@ -164,7 +164,7 @@ export default function GuiaRapidoPage() {
           {filteredGuides.map((guide) => (
             <Link
               key={guide.id}
-              href={`/guia-rapido/${guide.id}`}
+              href={`/guia-rapido/${guide.id}` as any}
               className="group flex flex-col bg-white rounded-xl border border-[rgb(200,190,191)] overflow-hidden hover:border-[rgb(108,25,29)] hover:shadow-lg transition-all"
             >
               {/* Imagem */}

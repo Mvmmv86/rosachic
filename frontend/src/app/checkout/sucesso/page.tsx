@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, ShoppingCart, User, CheckCircle2 } from 'lucide-react'
-import { Logo } from '@/components/Logo'
+import { CheckCircle2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { api } from '@/lib/api'
