@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { MessageCircle } from 'lucide-react'
 import { Logo } from '@/components/Logo'
 import { ChatWidget } from '@/components/ChatWidget'
+import { ChatButton } from '@/components/ChatButton'
 
 export default function HomePage() {
   const [favorites, setFavorites] = useState<number[]>([])
@@ -24,7 +25,7 @@ export default function HomePage() {
       <section
         className="w-full h-[582px] flex flex-col items-center justify-center relative bg-cover bg-center bg-no-repeat"
         style={{
-          background: `linear-gradient(0deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.03) 100%), linear-gradient(270deg, rgba(0, 0, 0, 0.00) -15.14%, rgba(0, 0, 0, 0.45) 100%), url(/hero-background-clean.png) lightgray 50% / cover no-repeat`
+          backgroundImage: `url(/hero-background-clean.png)`, backgroundSize: 'cover', backgroundPosition: 'center'
         }}
       >
         {/* Container centralizado 1224px */}
@@ -416,10 +417,14 @@ export default function HomePage() {
                 Nossa missão é proporcionar elegância, conforto e praticidade para seu lar.
               </p>
               <div className="flex gap-4">
-                <button className="bg-[rgb(108,25,29)] text-white px-6 py-3 rounded font-['Inter']">
+                <Link href="/servicos" className="bg-[rgb(108,25,29)] text-white px-6 py-3 rounded font-['Inter'] hover:bg-[rgb(88,20,24)] transition-colors inline-block">
                   Conhecer mais
-                </button>
-                <button className="border border-[rgb(108,25,29)] text-[rgb(108,25,29)] px-6 py-3 rounded font-['Inter']">
+                </Link>
+                <button
+                  onClick={() => setShowChat(true)}
+                  className="border border-[rgb(108,25,29)] text-[rgb(108,25,29)] px-6 py-3 rounded font-['Inter'] hover:bg-[rgb(108,25,29)] hover:text-white transition-colors flex items-center gap-2"
+                >
+                  <MessageCircle className="w-5 h-5" />
                   Fale conosco
                 </button>
               </div>
@@ -428,6 +433,12 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Chat Widget */}
+      
+      {/* Botão Flutuante de Chat */}
+      <ChatButton onClick={() => setShowChat(true)} />
+      {showChat && <ChatWidget />}
 
       {/* Footer - EXATAMENTE como no Figma */}
       <footer className="bg-[rgb(108,25,29)] text-white">

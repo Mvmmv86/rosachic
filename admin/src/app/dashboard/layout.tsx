@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, Package, Users, LogOut, Menu, X, ShoppingCart, TrendingUp, Settings } from 'lucide-react'
+import { LayoutDashboard, Package, Users, LogOut, Menu, X, ShoppingCart, TrendingUp, Settings, MessageSquare } from 'lucide-react'
 
 export default function DashboardLayout({
   children,
@@ -110,6 +110,14 @@ export default function DashboardLayout({
             >
               <Users size={20} />
               <span>Clientes</span>
+            </a>
+
+            <a
+              href="/dashboard/suporte/ia"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-maroon-50 hover:text-brand-maroon-700 transition"
+            >
+              <MessageSquare size={20} />
+              <span>Suporte IA</span>
             </a>
 
             <div className="pt-4 mt-4 border-t border-gray-200">

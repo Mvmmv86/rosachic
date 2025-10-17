@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -294,4 +295,30 @@ enum CheckoutMode {
   PAGSEGURO     // Futuro: PagSeguro
   STRIPE        // Futuro: Stripe
   PAYPAL        // Futuro: PayPal
+}
+// Chat IA - Conhecimento
+model ChatKnowledge {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   @db.Text
+  category    String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("chat_knowledge")
+}
+
+// OpenAI Config - Armazena API Key e configurações
+model OpenAIConfig {
+  id          String   @id @default(uuid())
+  apiKey      String   @map("api_key")
+  model       String   @default("gpt-4o-mini")
+  temperature Float    @default(0.7)
+  maxTokens   Int      @default(500) @map("max_tokens")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("openai_config")
 }

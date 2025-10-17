@@ -5,7 +5,7 @@ export function Logo() {
     <img
       src="/rosa-chic-logo.png"
       alt="Rosa Chic"
-      className="w-[50px] h-[50px] rounded-full object-contain flex-shrink-0"
+      className="w-[65px] h-[65px] rounded-full object-contain flex-shrink-0"
     />
   )
 }

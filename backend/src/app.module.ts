@@ -13,6 +13,7 @@ import { OrdersModule } from './orders/orders.module';
 import { PaymentModule } from './payment/payment.module';
 import { AdminModule } from './admin/admin.module';
 import { EmailModule } from './email/email.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { EmailModule } from './email/email.module';
     OrdersModule,
     PaymentModule,
     AdminModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
