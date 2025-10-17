@@ -335,12 +335,6 @@ export function Header() {
             <li>
               <Link href="/servicos" className="hover:text-white transition-colors">Serviços</Link>
             </li>
-            <li>
-              <Link href="/produtos?filtro=mais-procurados" className="hover:text-white transition-colors">Mais procurados</Link>
-            </li>
-            <li>
-              <Link href="/produtos" className="hover:text-white transition-colors">Outros</Link>
-            </li>
           </ul>
         </nav>
       </div>

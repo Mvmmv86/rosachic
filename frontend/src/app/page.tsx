@@ -2,10 +2,13 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { MessageCircle } from 'lucide-react'
 import { Logo } from '@/components/Logo'
+import { ChatWidget } from '@/components/ChatWidget'
 
 export default function HomePage() {
   const [favorites, setFavorites] = useState<number[]>([])
+  const [showChat, setShowChat] = useState(false)
 
   const toggleFavorite = (productId: number) => {
     setFavorites(prev =>

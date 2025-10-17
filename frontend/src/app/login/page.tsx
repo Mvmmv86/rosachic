@@ -35,11 +35,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[rgb(247,243,239)] flex flex-col">
-      {/* Header */}
-      <header className="bg-[rgb(108,25,29)] h-[60px] flex items-center justify-center">
-        <Logo />
-      </header>
-
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-[470px] bg-white rounded-lg shadow-sm p-12">
@@ -96,6 +91,16 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+            </div>
+
+            {/* Link Esqueci minha senha */}
+            <div className="text-right">
+              <Link
+                href="/esqueci-senha"
+                className="text-sm text-[rgb(108,25,29)] hover:underline"
+              >
+                Esqueci minha senha
+              </Link>
             </div>
 
             {/* Botão Login */}
@@ -159,9 +164,6 @@ export default function LoginPage() {
           {/* Footer Links */}
           <div className="grid grid-cols-3 gap-8 text-white">
             <div>
-              <div className="mb-4">
-                <Logo />
-              </div>
               <h3 className="font-serif text-lg font-semibold mb-2">Sobre nós</h3>
               <ul className="space-y-1 font-sans text-sm">
                 <li>Nossa história</li>

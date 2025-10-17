@@ -32,4 +32,29 @@ export class AuthController {
   async me(@Request() req: any) {
     return req.user
   }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() data: { email: string }) {
+    return this.authService.forgotPassword(data.email)
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body() data: { token: string; newPassword: string },
+  ) {
+    return this.authService.resetPassword(data.token, data.newPassword)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(
+    @Request() req: any,
+    @Body() data: { oldPassword: string; newPassword: string },
+  ) {
+    return this.authService.changePassword(
+      req.user.id,
+      data.oldPassword,
+      data.newPassword,
+    )
+  }
 }

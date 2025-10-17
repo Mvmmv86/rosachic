@@ -55,6 +55,77 @@ export class EmailService {
   }
 
   /**
+   * E-mail 1: Boas-vindas (Cadastro)
+   */
+  async sendWelcome(user: any) {
+    const subject = 'Bem-vindo à Rosa Chic!'
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: rgb(108,25,29); color: white; padding: 30px; text-align: center; }
+            .content { padding: 30px; background: #f9f9f9; }
+            .button { background: rgb(108,25,29); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; }
+            .feature { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; border-left: 4px solid rgb(108,25,29); }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Bem-vindo à Rosa Chic! 🎉</h1>
+            </div>
+            <div class="content">
+              <h2>Olá, ${user.name}!</h2>
+              <p>Estamos muito felizes em ter você conosco!</p>
+
+              <p>A Rosa Chic é especialista em persianas sob medida, combinando qualidade, elegância e funcionalidade para transformar seus ambientes.</p>
+
+              <h3>O que você pode fazer agora:</h3>
+
+              <div class="feature">
+                <strong>🛍️ Explorar Produtos</strong><br>
+                Navegue por nossa coleção de persianas exclusivas e encontre a perfeita para seu espaço.
+              </div>
+
+              <div class="feature">
+                <strong>📏 Calcular Orçamento</strong><br>
+                Use nossa calculadora online e descubra o valor ideal para suas medidas.
+              </div>
+
+              <div class="feature">
+                <strong>💬 Falar com Especialista</strong><br>
+                Tire suas dúvidas pelo WhatsApp e receba orientação personalizada.
+              </div>
+
+              <div style="text-align: center; margin-top: 30px;">
+                <a href="${this.configService.get('FRONTEND_URL')}/produtos" class="button">
+                  Ver Produtos
+                </a>
+              </div>
+
+              <p style="margin-top: 30px; font-size: 12px; color: #666;">
+                Aproveite e favorite seus produtos preferidos para não perder de vista! ❤️
+              </p>
+
+              <p style="margin-top: 20px;">
+                Atenciosamente,<br>
+                <strong>Equipe Rosa Chic</strong>
+              </p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    return this.sendEmail(user.email, subject, html)
+  }
+
+  /**
    * E-mail 15: Pedido Confirmado
    */
   async sendOrderConfirmed(order: any) {
