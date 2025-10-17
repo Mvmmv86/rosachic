@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { CheckCircle2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { api } from '@/lib/api'
 import { formatPrice } from '@/lib/products'
@@ -14,7 +14,7 @@ interface Order {
   items: any[]
 }
 
-export default function SucessoPage() {
+function SucessoPageContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
   const [order, setOrder] = useState<Order | null>(null)
@@ -169,3 +169,19 @@ export default function SucessoPage() {
     </div>
   )
 }
+
+export default function SucessoPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[rgb(241,237,237)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(108,25,29)]"></div>
+          <p className="mt-4 text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    }>
+      <SucessoPageContent />
+    </Suspense>
+  )
+}
+
