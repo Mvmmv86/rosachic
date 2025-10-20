@@ -33,8 +33,9 @@ export function ChatWidget() {
     setIsLoading(true)
 
     try {
-      // Chamar API do backend
-      const response = await fetch('http://localhost:3001/chat/message', {
+      // Chamar API do backend (usa variável de ambiente em produção)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+      const response = await fetch(`${apiUrl}/chat/message`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
