@@ -46,6 +46,8 @@ model Product {
   descricao       String
   estoque         Int           @default(0)
   ativo           Boolean       @default(true)
+  isLancamento    Boolean       @default(false) @map("is_lancamento")
+  isMaisVendido   Boolean       @default(false) @map("is_mais_vendido")
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
