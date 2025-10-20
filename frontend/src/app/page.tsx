@@ -1,23 +1,57 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MessageCircle } from 'lucide-react'
 import { Logo } from '@/components/Logo'
 import { ChatWidget } from '@/components/ChatWidget'
 import { ChatButton } from '@/components/ChatButton'
+import { getLancamentos, getMaisVendidos, getActiveProducts, formatPrice, getImageUrl, type Product } from '@/lib/products'
 
 export default function HomePage() {
-  const [favorites, setFavorites] = useState<number[]>([])
+  const [favorites, setFavorites] = useState<string[]>([])
   const [showChat, setShowChat] = useState(false)
+  const [activeTab, setActiveTab] = useState<'todos' | 'lancamentos' | 'mais-vendidos'>('todos')
+  const [lancamentos, setLancamentos] = useState<Product[]>([])
+  const [maisVendidos, setMaisVendidos] = useState<Product[]>([])
+  const [todosOsProdutos, setTodosOsProdutos] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const toggleFavorite = (productId: number) => {
+  useEffect(() => {
+    fetchProdutos()
+  }, [])
+
+  const fetchProdutos = async () => {
+    try {
+      setLoading(true)
+      const [lancamentosData, maisVendidosData, todosData] = await Promise.all([
+        getLancamentos(),
+        getMaisVendidos(),
+        getActiveProducts()
+      ])
+
+      setLancamentos(lancamentosData.slice(0, 3))
+      setMaisVendidos(maisVendidosData.slice(0, 4))
+      setTodosOsProdutos(todosData.data.slice(0, 4))
+    } catch (error) {
+      console.error('Erro ao buscar produtos:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const toggleFavorite = (productId: string) => {
     setFavorites(prev =>
       prev.includes(productId)
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     )
   }
+
+  // Produtos a exibir na seção "Design Premium"
+  const displayedProducts = activeTab === 'todos' ? todosOsProdutos :
+                           activeTab === 'lancamentos' ? lancamentos.slice(0, 4) :
+                           maisVendidos
 
   return (
     <div className="min-h-screen bg-[rgb(247,243,239)]">

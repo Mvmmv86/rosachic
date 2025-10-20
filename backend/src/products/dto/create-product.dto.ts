@@ -52,4 +52,12 @@ export class CreateProductDto {
   @IsBoolean()
   @IsOptional()
   ativo?: boolean
+
+  @IsBoolean()
+  @IsOptional()
+  isLancamento?: boolean
+
+  @IsBoolean()
+  @IsOptional()
+  isMaisVendido?: boolean
 }

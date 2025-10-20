@@ -18,6 +18,8 @@ interface FormData {
   areaMinM2: number
   ambientes: string[]
   ativo: boolean
+  isLancamento: boolean
+  isMaisVendido: boolean
 }
 
 export default function NewProductPage() {
@@ -39,6 +41,8 @@ export default function NewProductPage() {
     areaMinM2: 1,
     ambientes: [],
     ativo: true,
+    isLancamento: false,
+    isMaisVendido: false,
   })
 
   const handleInputChange = (
@@ -411,6 +415,39 @@ export default function NewProductPage() {
             <label className="text-sm font-medium text-gray-700">
               Produto ativo (visível no site)
             </label>
+          </div>
+        </div>
+
+        {/* Destaque na Home */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Destaque na Home</h2>
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                name="isLancamento"
+                checked={formData.isLancamento}
+                onChange={handleInputChange}
+                className="w-5 h-5 text-brand-maroon-700 rounded focus:ring-brand-maroon-500"
+              />
+              <label className="text-sm font-medium text-gray-700">
+                Marcar como Lançamento (aparece na seção Lançamentos da Home)
+              </label>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                name="isMaisVendido"
+                checked={formData.isMaisVendido}
+                onChange={handleInputChange}
+                className="w-5 h-5 text-brand-maroon-700 rounded focus:ring-brand-maroon-500"
+              />
+              <label className="text-sm font-medium text-gray-700">
+                Marcar como Mais Vendido (aparece na aba Mais Vendidos)
+              </label>
+            </div>
           </div>
         </div>
 

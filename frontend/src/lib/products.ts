@@ -10,6 +10,8 @@ export interface Product {
   valorM2: number
   estoque: number
   ativo: boolean
+  isLancamento: boolean
+  isMaisVendido: boolean
   imagens: string[]
   larguraMaxCm: number
   alturaMaxCm: number
@@ -134,4 +136,20 @@ export function formatPrice(value: number): string {
 export function getImageUrl(filename: string): string {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
   return `${apiUrl}/uploads/${filename}`
+}
+
+/**
+ * Busca produtos marcados como lançamento
+ */
+export async function getLancamentos(): Promise<Product[]> {
+  const { data } = await api.get<Product[]>('/products/lancamentos')
+  return data
+}
+
+/**
+ * Busca produtos marcados como mais vendidos
+ */
+export async function getMaisVendidos(): Promise<Product[]> {
+  const { data } = await api.get<Product[]>('/products/mais-vendidos')
+  return data
 }

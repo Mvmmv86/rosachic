@@ -19,6 +19,8 @@ export class ProductsService {
           areaMinM2: data.areaMinM2 ?? 1.0,
           estoque: data.estoque ?? 0,
           ativo: data.ativo ?? true,
+          isLancamento: data.isLancamento ?? false,
+          isMaisVendido: data.isMaisVendido ?? false,
         },
       })
 
@@ -176,6 +178,32 @@ export class ProductsService {
         ativo: true,
       },
       orderBy: { valorM2: 'asc' },
+    })
+
+    return products.map(p => this.formatProduct(p))
+  }
+
+  // Buscar produtos marcados como lançamento
+  async findLancamentos() {
+    const products = await this.prisma.product.findMany({
+      where: {
+        isLancamento: true,
+        ativo: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return products.map(p => this.formatProduct(p))
+  }
+
+  // Buscar produtos mais vendidos
+  async findMaisVendidos() {
+    const products = await this.prisma.product.findMany({
+      where: {
+        isMaisVendido: true,
+        ativo: true,
+      },
+      orderBy: { createdAt: 'desc' },
     })
 
     return products.map(p => this.formatProduct(p))

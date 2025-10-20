@@ -35,6 +35,8 @@ export class ProductsController {
     @Query('material') material?: string,
     @Query('luminosidade') luminosidade?: string,
     @Query('orderBy') orderBy?: string,
+    @Query('isLancamento') isLancamento?: string,
+    @Query('isMaisVendido') isMaisVendido?: string,
   ) {
     const where: any = {}
 
@@ -48,6 +50,14 @@ export class ProductsController {
 
     if (luminosidade) {
       where.luminosidade = luminosidade
+    }
+
+    if (isLancamento !== undefined) {
+      where.isLancamento = isLancamento === 'true'
+    }
+
+    if (isMaisVendido !== undefined) {
+      where.isMaisVendido = isMaisVendido === 'true'
     }
 
     const orderByObj: any = {}
@@ -73,6 +83,18 @@ export class ProductsController {
   @Get('active')
   findActive() {
     return this.productsService.findActive()
+  }
+
+  // Buscar lançamentos (público)
+  @Get('lancamentos')
+  findLancamentos() {
+    return this.productsService.findLancamentos()
+  }
+
+  // Buscar mais vendidos (público)
+  @Get('mais-vendidos')
+  findMaisVendidos() {
+    return this.productsService.findMaisVendidos()
   }
 
   // Buscar por dimensões (público)
