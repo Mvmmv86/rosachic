@@ -461,8 +461,8 @@ export default function PaymentConfigPage() {
             </h3>
             <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800">
               <li>Acesse o painel do Mercado Pago: <a href="https://www.mercadopago.com.br/developers" target="_blank" rel="noopener noreferrer" className="underline">mercadopago.com.br/developers</a></li>
-              <li>Vá em "Suas integrações" → "Credenciais"</li>
-              <li>Copie a "Public Key" e o "Access Token"</li>
+              <li>Vá em &quot;Suas integrações&quot; → &quot;Credenciais&quot;</li>
+              <li>Copie a &quot;Public Key&quot; e o &quot;Access Token&quot;</li>
               <li>Para modo de teste, use as credenciais de teste</li>
               <li>Para produção, ative sua conta e use credenciais de produção</li>
             </ol>

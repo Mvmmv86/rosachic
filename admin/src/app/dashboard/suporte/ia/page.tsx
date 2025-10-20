@@ -379,7 +379,7 @@ export default function SuporteIAPage() {
         <div className="space-y-3">
           {knowledge.length === 0 ? (
             <p className="text-center text-gray-500 py-8">
-              Nenhum conhecimento cadastrado ainda. Clique em "Adicionar Conhecimento" para começar.
+              Nenhum conhecimento cadastrado ainda. Clique em &quot;Adicionar Conhecimento&quot; para começar.
             </p>
           ) : (
             knowledge.map((item) => (
