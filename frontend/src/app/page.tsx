@@ -166,9 +166,9 @@ export default function HomePage() {
           {/* Grid de 3 Cards de Produto */}
           <div className="flex items-start gap-6">
             {[
-              { id: 1, image: '/products/produto1.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 },
-              { id: 2, image: '/products/produto2.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 },
-              { id: 3, image: '/products/produto3.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 }
+              { id: '1', image: '/products/produto1.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 },
+              { id: '2', image: '/products/produto2.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 },
+              { id: '3', image: '/products/produto3.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 }
             ].map((product) => {
               const isFavorite = favorites.includes(product.id)
 
@@ -353,10 +353,10 @@ export default function HomePage() {
           {/* Grid de 4 Cards de Produto */}
           <div className="grid grid-cols-4 gap-6">
             {[
-              { id: 11, image: '/products/produto1.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: '-24%', badgeColor: 'bg-green-600' },
-              { id: 12, image: '/products/produto2.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' },
-              { id: 13, image: '/products/produto3.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' },
-              { id: 14, image: '/products/produto4.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' }
+              { id: '11', image: '/products/produto1.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: '-24%', badgeColor: 'bg-green-600' },
+              { id: '12', image: '/products/produto2.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' },
+              { id: '13', image: '/products/produto3.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' },
+              { id: '14', image: '/products/produto4.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' }
             ].map((product) => {
               const isFavorite = favorites.includes(product.id)
 
