@@ -7,6 +7,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
+    // Backend atualizado: suporta isLancamento e isMaisVendido
     return this.appService.getHello();
   }
 }
