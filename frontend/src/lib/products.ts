@@ -134,7 +134,11 @@ export function formatPrice(value: number): string {
  * Retorna a URL completa da imagem
  */
 export function getImageUrl(filename: string): string {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+  // Em produção, usar URL do Railway, em dev usar localhost
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ||
+                 (typeof window !== 'undefined' && window.location.hostname.includes('railway.app')
+                   ? 'https://rosachic-production.up.railway.app'
+                   : 'http://localhost:3001')
   return `${apiUrl}/uploads/${filename}`
 }
 
