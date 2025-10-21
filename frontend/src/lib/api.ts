@@ -1,6 +1,22 @@
 import axios from 'axios'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+// Detectar automaticamente a URL da API em produção
+const getApiUrl = () => {
+  // Se a variável de ambiente estiver definida, usar ela
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL
+  }
+
+  // Em produção (Railway), usar URL do backend
+  if (typeof window !== 'undefined' && window.location.hostname.includes('railway.app')) {
+    return 'https://rosachic-production.up.railway.app'
+  }
+
+  // Em desenvolvimento, usar localhost
+  return 'http://localhost:3001'
+}
+
+const API_URL = getApiUrl()
 
 export const api = axios.create({
   baseURL: API_URL,
