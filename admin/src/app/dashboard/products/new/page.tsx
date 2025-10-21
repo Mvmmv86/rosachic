@@ -77,8 +77,8 @@ export default function NewProductPage() {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      // Extrair apenas os nomes dos arquivos (sem /uploads/)
-      const novasImagens = data.files.map((f: any) => f.filename)
+      // Usar a URL completa retornada pelo backend (Supabase Storage)
+      const novasImagens = data.files.map((f: any) => f.url || f.filename)
       setImagens([...imagens, ...novasImagens])
     } catch (error) {
       console.error('Erro ao fazer upload:', error)
@@ -373,7 +373,7 @@ export default function NewProductPage() {
             {imagens.map((imagem, index) => (
               <div key={index} className="relative">
                 <img
-                  src={`http://localhost:3000/uploads/${imagem}`}
+                  src={imagem.startsWith('http') ? imagem : `http://localhost:3001/uploads/${imagem}`}
                   alt={`Preview ${index + 1}`}
                   className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
                 />
