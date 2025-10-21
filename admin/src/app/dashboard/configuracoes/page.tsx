@@ -119,10 +119,10 @@ export default function ConfiguracoesPage() {
       {/* Imagem "Sobre a Rosa Chic" */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          Imagem da Seção "Sobre a Rosa Chic"
+          Imagem da Seção &quot;Sobre a Rosa Chic&quot;
         </h2>
         <p className="text-sm text-gray-600 mb-4">
-          Imagem exibida ao lado do texto na seção "Sobre Nós" (567x567px recomendado)
+          Imagem exibida ao lado do texto na seção &quot;Sobre Nós&quot; (567x567px recomendado)
         </p>
 
         <div className="flex gap-4 items-start">
