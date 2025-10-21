@@ -165,12 +165,20 @@ export default function HomePage() {
 
           {/* Grid de 3 Cards de Produto */}
           <div className="flex items-start gap-6">
-            {[
-              { id: '1', image: '/products/produto1.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 },
-              { id: '2', image: '/products/produto2.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 },
-              { id: '3', image: '/products/produto3.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4 }
-            ].map((product) => {
-              const isFavorite = favorites.includes(product.id)
+            {loading ? (
+              // Loading skeleton
+              [1, 2, 3].map((i) => (
+                <div key={i} className="w-[288px] h-[400px] bg-gray-200 animate-pulse rounded-xl"></div>
+              ))
+            ) : lancamentos.length === 0 ? (
+              // Mensagem quando não há lançamentos
+              <div className="w-full text-center py-12 text-gray-500">
+                Nenhum lançamento cadastrado ainda
+              </div>
+            ) : (
+              lancamentos.slice(0, 3).map((product) => {
+                const isFavorite = favorites.includes(product.id)
+                const hasImage = product.imagens && product.imagens.length > 0
 
               return (
                 <div
@@ -203,37 +211,45 @@ export default function HomePage() {
 
                 {/* Imagem do produto */}
                 <div className="w-full h-[224px] bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                    Produto {product.id}
-                  </div>
+                  {hasImage ? (
+                    <img
+                      src={getImageUrl(product.imagens[0])}
+                      alt={product.modelo}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                      Sem imagem
+                    </div>
+                  )}
                 </div>
 
                 {/* Informações do produto */}
                 <div className="w-full flex flex-col gap-2">
                   <h3 className="text-base font-['Inter'] text-gray-800">
-                    {product.name}
+                    {product.modelo}
                   </h3>
 
                   <div className="flex justify-between items-center w-full">
                     <span className="text-lg font-['Inter'] font-semibold text-black">
-                      {product.price}
+                      {formatPrice(product.valorM2)}/m²
                     </span>
-                    <button className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
+                    <Link href={`/produto/${product.id}`} className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="9 18 15 12 9 6"></polyline>
                       </svg>
-                    </button>
+                    </Link>
                   </div>
 
-                  {/* Estrelas de avaliação */}
-                  <div className="flex gap-1" title={`Avaliação: ${product.rating} de 5 estrelas`}>
+                  {/* Estrelas de avaliação (fixo 4 por enquanto) */}
+                  <div className="flex gap-1" title="Avaliação: 4 de 5 estrelas">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <svg
                         key={star}
                         width="16"
                         height="16"
                         viewBox="0 0 24 24"
-                        fill={star <= product.rating ? "#B87333" : "none"}
+                        fill={star <= 4 ? "#B87333" : "none"}
                         stroke="#B87333"
                         strokeWidth="1.5"
                       >
@@ -244,7 +260,7 @@ export default function HomePage() {
                 </div>
                 </div>
               )
-            })}
+            }))}
           </div>
         </div>
       </section>
@@ -338,13 +354,22 @@ export default function HomePage() {
 
             {/* Tabs de navegação */}
             <div className="flex justify-center gap-6 text-base font-['Inter']">
-              <button className="text-black font-medium underline underline-offset-4">
+              <button
+                onClick={() => setActiveTab('todos')}
+                className={activeTab === 'todos' ? "text-black font-medium underline underline-offset-4" : "text-gray-500 hover:text-black transition-colors"}
+              >
                 Todos os produtos
               </button>
-              <button className="text-gray-500 hover:text-black transition-colors">
+              <button
+                onClick={() => setActiveTab('lancamentos')}
+                className={activeTab === 'lancamentos' ? "text-black font-medium underline underline-offset-4" : "text-gray-500 hover:text-black transition-colors"}
+              >
                 Lançamentos
               </button>
-              <button className="text-gray-500 hover:text-black transition-colors">
+              <button
+                onClick={() => setActiveTab('mais-vendidos')}
+                className={activeTab === 'mais-vendidos' ? "text-black font-medium underline underline-offset-4" : "text-gray-500 hover:text-black transition-colors"}
+              >
                 Mais vendidos
               </button>
             </div>
@@ -352,13 +377,21 @@ export default function HomePage() {
 
           {/* Grid de 4 Cards de Produto */}
           <div className="grid grid-cols-4 gap-6">
-            {[
-              { id: '11', image: '/products/produto1.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: '-24%', badgeColor: 'bg-green-600' },
-              { id: '12', image: '/products/produto2.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' },
-              { id: '13', image: '/products/produto3.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' },
-              { id: '14', image: '/products/produto4.jpg', name: 'Persiana Rolô Tela Solar 5% - Branca', price: 'R$ 320,00', rating: 4, badge: 'Lançamento', badgeColor: 'bg-[rgb(184,115,51)]' }
-            ].map((product) => {
-              const isFavorite = favorites.includes(product.id)
+            {loading ? (
+              // Loading skeleton
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-full h-[400px] bg-gray-200 animate-pulse rounded-xl"></div>
+              ))
+            ) : displayedProducts.length === 0 ? (
+              <div className="col-span-4 text-center py-12 text-gray-500">
+                Nenhum produto cadastrado ainda
+              </div>
+            ) : (
+              displayedProducts.map((product) => {
+                const isFavorite = favorites.includes(product.id)
+                const hasImage = product.imagens && product.imagens.length > 0
+                const badge = product.isLancamento ? 'Lançamento' : product.isMaisVendido ? 'Mais Vendido' : null
+                const badgeColor = product.isLancamento ? 'bg-[rgb(184,115,51)]' : product.isMaisVendido ? 'bg-green-600' : ''
 
               return (
                 <div
@@ -367,9 +400,12 @@ export default function HomePage() {
                 >
                   {/* Header do card - Badge e Coração */}
                   <div className="w-full flex justify-between items-start mb-2">
-                    <span className={`px-3 py-1 ${product.badgeColor} text-white text-xs font-['Inter'] rounded-full`}>
-                      {product.badge}
-                    </span>
+                    {badge && (
+                      <span className={`px-3 py-1 ${badgeColor} text-white text-xs font-['Inter'] rounded-full`}>
+                        {badge}
+                      </span>
+                    )}
+                    {!badge && <div></div>}
                     <button
                       onClick={() => toggleFavorite(product.id)}
                       className="w-6 h-6 flex items-center justify-center transition-all hover:scale-110"
@@ -391,37 +427,45 @@ export default function HomePage() {
 
                   {/* Imagem do produto */}
                   <div className="w-full h-[224px] bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                      Produto {product.id}
-                    </div>
+                    {hasImage ? (
+                      <img
+                        src={getImageUrl(product.imagens[0])}
+                        alt={product.modelo}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                        Sem imagem
+                      </div>
+                    )}
                   </div>
 
                   {/* Informações do produto */}
                   <div className="w-full flex flex-col gap-2">
                     <h3 className="text-base font-['Inter'] text-gray-800">
-                      {product.name}
+                      {product.modelo}
                     </h3>
 
                     <div className="flex justify-between items-center w-full">
                       <span className="text-lg font-['Inter'] font-semibold text-black">
-                        {product.price}
+                        {formatPrice(product.valorM2)}/m²
                       </span>
-                      <button className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
+                      <Link href={`/produto/${product.id}`} className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <polyline points="9 18 15 12 9 6"></polyline>
                         </svg>
-                      </button>
+                      </Link>
                     </div>
 
-                    {/* Estrelas de avaliação */}
-                    <div className="flex gap-1" title={`Avaliação: ${product.rating} de 5 estrelas`}>
+                    {/* Estrelas de avaliação (fixo 4 por enquanto) */}
+                    <div className="flex gap-1" title="Avaliação: 4 de 5 estrelas">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <svg
                           key={star}
                           width="16"
                           height="16"
                           viewBox="0 0 24 24"
-                          fill={star <= product.rating ? "#B87333" : "none"}
+                          fill={star <= 4 ? "#B87333" : "none"}
                           stroke="#B87333"
                           strokeWidth="1.5"
                         >
@@ -432,7 +476,7 @@ export default function HomePage() {
                   </div>
                 </div>
               )
-            })}
+            }))}
           </div>
         </div>
       </section>
