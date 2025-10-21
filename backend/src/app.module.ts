@@ -14,6 +14,7 @@ import { PaymentModule } from './payment/payment.module';
 import { AdminModule } from './admin/admin.module';
 import { EmailModule } from './email/email.module';
 import { ChatModule } from './chat/chat.module';
+import { SiteConfigModule } from './site-config/site-config.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ChatModule } from './chat/chat.module';
     PaymentModule,
     AdminModule,
     ChatModule,
+    SiteConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],

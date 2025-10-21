@@ -324,3 +324,17 @@ model OpenAIConfig {
 
   @@map("openai_config")
 }
+
+// Site Config - Configurações e imagens institucionais do site
+model SiteConfig {
+  id                  String   @id @default(uuid())
+  aboutImage          String?  @map("about_image")           // Imagem da seção "Sobre a Rosa Chic"
+  instagramImages     String?  @map("instagram_images")      // JSON array com 5 URLs de imagens do Instagram
+  whatsappNumber      String?  @map("whatsapp_number")       // Número do WhatsApp
+  instagramUrl        String?  @map("instagram_url")         // URL do Instagram
+  facebookUrl         String?  @map("facebook_url")          // URL do Facebook
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("site_config")
+}

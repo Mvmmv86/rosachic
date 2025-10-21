@@ -123,6 +123,13 @@ export default function DashboardLayout({
             <div className="pt-4 mt-4 border-t border-gray-200">
               <p className="text-xs font-semibold text-gray-400 px-4 mb-2">CONFIGURAÇÕES</p>
               <a
+                href="/dashboard/configuracoes"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-maroon-50 hover:text-brand-maroon-700 transition"
+              >
+                <Settings size={20} />
+                <span>Site</span>
+              </a>
+              <a
                 href="/checkout-config"
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-maroon-50 hover:text-brand-maroon-700 transition"
               >

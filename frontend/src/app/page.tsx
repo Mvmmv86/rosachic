@@ -16,9 +16,11 @@ export default function HomePage() {
   const [maisVendidos, setMaisVendidos] = useState<Product[]>([])
   const [todosOsProdutos, setTodosOsProdutos] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [siteConfig, setSiteConfig] = useState<any>(null)
 
   useEffect(() => {
     fetchProdutos()
+    fetchSiteConfig()
   }, [])
 
   const fetchProdutos = async () => {
@@ -37,6 +39,21 @@ export default function HomePage() {
       console.error('Erro ao buscar produtos:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchSiteConfig = async () => {
+    try {
+      // Detectar URL da API
+      const apiUrl = typeof window !== 'undefined' && window.location.hostname.includes('railway.app')
+        ? 'https://rosachic-production.up.railway.app'
+        : 'http://localhost:3001'
+
+      const response = await fetch(`${apiUrl}/site-config`)
+      const data = await response.json()
+      setSiteConfig(data)
+    } catch (error) {
+      console.error('Erro ao buscar configurações do site:', error)
     }
   }
 
@@ -507,7 +524,19 @@ export default function HomePage() {
                 </button>
               </div>
             </div>
-            <div className="h-[567px] bg-gray-300 rounded-lg"></div>
+            <div className="h-[567px] bg-gray-300 rounded-lg overflow-hidden">
+              {siteConfig?.aboutImage ? (
+                <img
+                  src={siteConfig.aboutImage}
+                  alt="Sobre a Rosa Chic"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                  Configure a imagem no Admin
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
