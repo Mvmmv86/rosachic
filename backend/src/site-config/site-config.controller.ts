@@ -1,5 +1,6 @@
 import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
-import { SiteConfigService, UpdateSiteConfigDto } from './site-config.service';
+import { SiteConfigService } from './site-config.service';
+import type { UpdateSiteConfigDto } from './site-config.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('site-config')
