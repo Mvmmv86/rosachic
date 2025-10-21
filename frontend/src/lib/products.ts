@@ -134,7 +134,17 @@ export function formatPrice(value: number): string {
  * Retorna a URL completa da imagem
  */
 export function getImageUrl(filename: string): string {
-  // Em produção, usar URL do Railway, em dev usar localhost
+  // Se o filename já é uma URL completa (do Supabase), retornar direto
+  if (filename.startsWith('http://') || filename.startsWith('https://')) {
+    return filename
+  }
+
+  // Se for URL do Supabase Storage (após implementação)
+  if (filename.includes('supabase.co/storage')) {
+    return filename
+  }
+
+  // Fallback: tentar buscar do backend Railway
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ||
                  (typeof window !== 'undefined' && window.location.hostname.includes('railway.app')
                    ? 'https://rosachic-production.up.railway.app'

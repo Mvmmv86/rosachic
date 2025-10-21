@@ -1,34 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import { promises as fs } from 'fs';
-import * as path from 'path';
+import { SupabaseStorageService } from './supabase-storage.service';
 
 @Injectable()
 export class UploadService {
-  private readonly uploadDir = path.join(process.cwd(), 'uploads');
+  constructor(private supabaseStorage: SupabaseStorageService) {}
 
-  async ensureUploadDir() {
-    try {
-      await fs.access(this.uploadDir);
-    } catch {
-      await fs.mkdir(this.uploadDir, { recursive: true });
-    }
+  /**
+   * Faz upload de arquivo para Supabase Storage
+   * @param buffer Buffer do arquivo
+   * @param filename Nome do arquivo
+   * @returns URL pública do arquivo no Supabase
+   */
+  async uploadFile(buffer: Buffer, filename: string): Promise<string> {
+    return this.supabaseStorage.uploadFile(buffer, filename);
   }
 
-  getFilePath(filename: string): string {
-    return path.join(this.uploadDir, filename);
+  /**
+   * Faz upload de múltiplos arquivos
+   * @param files Array de arquivos
+   * @returns Array de URLs públicas
+   */
+  async uploadMultipleFiles(
+    files: Array<{ buffer: Buffer; filename: string }>,
+  ): Promise<string[]> {
+    return this.supabaseStorage.uploadMultipleFiles(files);
   }
 
+  /**
+   * Retorna URL pública de um arquivo
+   * @param filename Nome do arquivo
+   * @returns URL pública completa do Supabase
+   */
   getFileUrl(filename: string): string {
-    // URL relativa que será servida pelo backend
-    return `/uploads/${filename}`;
+    return this.supabaseStorage.getPublicUrl(filename);
   }
 
+  /**
+   * Deleta arquivo do Supabase Storage
+   * @param filename Nome do arquivo
+   */
   async deleteFile(filename: string): Promise<void> {
-    const filePath = this.getFilePath(filename);
-    try {
-      await fs.unlink(filePath);
-    } catch (error) {
-      console.error(`Error deleting file ${filename}:`, error);
-    }
+    await this.supabaseStorage.deleteFile(filename);
   }
 }
