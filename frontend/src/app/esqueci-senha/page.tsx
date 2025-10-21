@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { api } from '@/lib/api'
 
 export default function EsqueciSenhaPage() {
   const router = useRouter()
@@ -18,24 +19,11 @@ export default function EsqueciSenhaPage() {
     setMessage('')
 
     try {
-      const response = await fetch('http://localhost:3001/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setMessage(data.message)
-        setEmail('')
-      } else {
-        setError(data.message || 'Erro ao solicitar recuperação de senha')
-      }
-    } catch (err) {
-      setError('Erro ao conectar com o servidor')
+      const { data } = await api.post('/auth/forgot-password', { email })
+      setMessage(data.message)
+      setEmail('')
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao conectar com o servidor')
     } finally {
       setLoading(false)
     }

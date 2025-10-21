@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { api } from '@/lib/api'
 
 function ResetPasswordForm() {
   const router = useRouter()
@@ -43,26 +44,13 @@ function ResetPasswordForm() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, newPassword }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setMessage('Senha alterada com sucesso! Redirecionando...')
-        setTimeout(() => {
-          router.push('/login')
-        }, 2000)
-      } else {
-        setError(data.message || 'Erro ao alterar senha')
-      }
-    } catch (err) {
-      setError('Erro ao conectar com o servidor')
+      const { data } = await api.post('/auth/reset-password', { token, newPassword })
+      setMessage('Senha alterada com sucesso! Redirecionando...')
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao conectar com o servidor')
     } finally {
       setLoading(false)
     }
