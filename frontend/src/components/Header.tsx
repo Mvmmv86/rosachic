@@ -248,85 +248,29 @@ export function Header() {
               <Link href="/" className="hover:text-white transition-colors">Home</Link>
             </li>
 
-            {/* Categorias com Mega Menu */}
+            {/* Modelo com Menu de Tipos de Persianas */}
             <li className="relative" ref={categoriasMenuRef}>
               <button
                 onClick={() => {
-                  console.log('Categorias menu clicked! Current state:', isCategoriasMenuOpen)
+                  console.log('Modelo menu clicked! Current state:', isCategoriasMenuOpen)
                   setIsCategoriasMenuOpen(!isCategoriasMenuOpen)
                 }}
                 className="hover:text-white transition-colors flex items-center gap-1"
               >
-                Categorias
+                Modelo
                 <ChevronDown className="w-3 h-3" />
               </button>
 
-              {/* Mega Menu Categorias */}
+              {/* Menu Modelo - Apenas Tipos de Persianas */}
               {isCategoriasMenuOpen && (
-                <div className="absolute left-0 top-full mt-2 w-[600px] bg-white rounded-lg shadow-lg transition-all duration-200 z-50 border border-gray-200">
-                  <div className="p-6 grid grid-cols-3 gap-6">
-                    {/* Coluna 1 - Sem Furos */}
-                    <div>
-                      <h3 className="text-sm font-bold text-[rgb(108,25,29)] mb-3 pb-2 border-b border-gray-200">Sem Furos</h3>
-                      <ul className="space-y-2">
-                        <li><Link href="/produtos?categoria=kitbox" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Kitbox</Link></li>
-                        <li><Link href="/produtos?categoria=rolo" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Rolô</Link></li>
-                        <li><Link href="/produtos?categoria=romana" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Romana</Link></li>
-                        <li><Link href="/produtos?categoria=cortinas" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Cortinas</Link></li>
-                        <li><Link href="/produtos?categoria=double-vision" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Double Vision</Link></li>
-                      </ul>
-                    </div>
-
-                    {/* Coluna 2 - Quarto */}
-                    <div>
-                      <h3 className="text-sm font-bold text-[rgb(108,25,29)] mb-3 pb-2 border-b border-gray-200">Ambientes</h3>
-                      <ul className="space-y-2">
-                        <li><Link href="/produtos?ambiente=quarto" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Quarto</Link></li>
-                        <li><Link href="/produtos?ambiente=sala" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Sala</Link></li>
-                        <li><Link href="/produtos?ambiente=cozinha" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Cozinha</Link></li>
-                        <li><Link href="/produtos?ambiente=escritorio" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Escritório</Link></li>
-                        <li><Link href="/produtos?ambiente=varanda" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Varanda e Sacada</Link></li>
-                        <li><Link href="/produtos?ambiente=banheiro" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Banheiro</Link></li>
-                      </ul>
-                    </div>
-
-                    {/* Coluna 3 - Montagem */}
-                    <div>
-                      <h3 className="text-sm font-bold text-[rgb(108,25,29)] mb-3 pb-2 border-b border-gray-200">Serviços</h3>
-                      <ul className="space-y-2">
-                        <li><Link href="/servicos#montagem" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Montagem</Link></li>
-                        <li><Link href="/servicos#limpeza" className="text-sm text-gray-700 hover:text-[rgb(108,25,29)] transition-colors">Limpeza</Link></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </li>
-
-            <li>
-              <Link href="/guia-rapido" className="hover:text-white transition-colors">Guia rápido</Link>
-            </li>
-
-            {/* Ambientes com Submenu */}
-            <li className="relative" ref={ambientesMenuRef}>
-              <button
-                onClick={() => setIsAmbientesMenuOpen(!isAmbientesMenuOpen)}
-                className="hover:text-white transition-colors flex items-center gap-1"
-              >
-                Ambientes
-                <ChevronDown className="w-3 h-3" />
-              </button>
-
-              {/* Submenu Ambientes */}
-              {isAmbientesMenuOpen && (
-                <div className="absolute left-0 top-full mt-2 w-[200px] bg-white rounded-lg shadow-lg transition-all duration-200 z-50 border border-gray-200">
+                <div className="absolute left-0 top-full mt-2 w-[280px] bg-white rounded-lg shadow-lg transition-all duration-200 z-50 border border-gray-200">
                   <div className="py-2">
-                    <Link href="/produtos?ambiente=quarto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Quarto</Link>
-                    <Link href="/produtos?ambiente=sala" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Sala</Link>
-                    <Link href="/produtos?ambiente=cozinha" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Cozinha</Link>
-                    <Link href="/produtos?ambiente=escritorio" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Escritório</Link>
-                    <Link href="/produtos?ambiente=varanda" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Varanda e Sacada</Link>
-                    <Link href="/produtos?ambiente=banheiro" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Banheiro</Link>
+                    <Link href="/produtos?modelo=horizontal" onClick={() => setIsCategoriasMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Persiana Horizontal</Link>
+                    <Link href="/produtos?modelo=vertical" onClick={() => setIsCategoriasMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Persiana Vertical</Link>
+                    <Link href="/produtos?modelo=madeira" onClick={() => setIsCategoriasMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Persiana de Madeira</Link>
+                    <Link href="/produtos?modelo=rolo" onClick={() => setIsCategoriasMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Persiana Rolô</Link>
+                    <Link href="/produtos?modelo=romana" onClick={() => setIsCategoriasMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Persiana Romana</Link>
+                    <Link href="/produtos?modelo=double-vision" onClick={() => setIsCategoriasMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">Persiana Double Vision</Link>
                   </div>
                 </div>
               )}
@@ -334,6 +278,10 @@ export function Header() {
 
             <li>
               <Link href="/servicos" className="hover:text-white transition-colors">Serviços</Link>
+            </li>
+
+            <li>
+              <Link href="/guia-rapido" className="hover:text-white transition-colors">Guia Rápido</Link>
             </li>
           </ul>
         </nav>

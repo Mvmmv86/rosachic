@@ -85,20 +85,17 @@ export default function HomePage() {
           <div className="relative z-10 flex flex-col items-start gap-16 max-w-[600px]">
           <div className="flex flex-col gap-6">
             <h1 className="text-5xl font-['Cormorant_Garamond'] font-bold text-white leading-tight">
-              Persianas sob medida para cada ambiente da sua casa
+              Persianas sob medida que traduzem o seu estilo
             </h1>
             <p className="text-lg font-['Inter'] text-white/90">
-              Soluções exclusivas para valorizar cada ambiente, com entrega em todo o Brasil
+              Persianas exclusivas que valorizam seus espaços, com entrega em todo o Brasil
             </p>
           </div>
 
           <div className="flex gap-4">
-            <button className="bg-white text-[rgb(108,25,29)] px-8 py-3 rounded-lg font-['Inter'] font-medium hover:bg-white/90 transition-colors">
-              Encontre a sua
-            </button>
-            <button className="bg-transparent text-white px-8 py-3 rounded-lg font-['Inter'] font-medium border-2 border-white hover:bg-white/10 transition-colors">
-              Montagem em Curitiba
-            </button>
+            <Link href="/produtos" className="bg-white text-[rgb(108,25,29)] px-8 py-3 rounded-lg font-['Inter'] font-medium hover:bg-white/90 transition-colors">
+              Escolha a sua
+            </Link>
           </div>
         </div>
         </div>
@@ -121,16 +118,16 @@ export default function HomePage() {
           {/* Grid de categorias - 6 círculos de 152x152px com gap de 24px */}
           <div className="flex justify-between items-center gap-6 w-full">
             {[
-              { name: 'Sem Furos', image: '/sem-furos.png' },
-              { name: 'Kitbox', image: '/kitbox.png' },
-              { name: 'Rolo', image: '/rolo.png' },
-              { name: 'Romana', image: '/romana.png' },
-              { name: 'Cortinas', image: '/cortina.png' },
-              { name: 'Double Vision', image: '/double-vision.png' }
+              { name: 'Sem Furos', image: '/sem-furos.png', categoria: 'sem-furos' },
+              { name: 'Kitbox', image: '/kitbox.png', categoria: 'kitbox' },
+              { name: 'Rolo', image: '/rolo.png', categoria: 'rolo' },
+              { name: 'Romana', image: '/romana.png', categoria: 'romana' },
+              { name: 'Cortinas', image: '/cortina.png', categoria: 'cortinas' },
+              { name: 'Double Vision', image: '/double-vision.png', categoria: 'double-vision' }
             ].map((category) => (
               <Link
                 key={category.name}
-                href={"/" as any}
+                href={`/produtos?categoria=${category.categoria}`}
                 className="flex flex-col items-center gap-4"
               >
                 {/* Círculo 152x152px com borda rosewood */}
@@ -175,9 +172,9 @@ export default function HomePage() {
             </div>
 
             {/* Botão */}
-            <button className="flex px-3 py-3 justify-center items-center gap-2 bg-[rgb(108,25,29)] text-white rounded-lg font-['Inter'] font-medium hover:bg-[rgb(88,20,24)] transition-colors">
+            <Link href="/produtos?filtro=lancamentos" className="flex px-3 py-3 justify-center items-center gap-2 bg-[rgb(108,25,29)] text-white rounded-lg font-['Inter'] font-medium hover:bg-[rgb(88,20,24)] transition-colors">
               Ver Todos os Lançamentos
-            </button>
+            </Link>
           </div>
 
           {/* Grid de 3 Cards de Produto */}
@@ -198,84 +195,86 @@ export default function HomePage() {
                 const hasImage = product.imagens && product.imagens.length > 0
 
               return (
-                <div
-                  key={product.id}
-                  className="flex p-6 flex-col justify-center items-center gap-2 w-[288px] rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer"
-                >
-                  {/* Header do card - Badge e Coração */}
-                  <div className="w-full flex justify-between items-start mb-2">
-                    <span className="px-3 py-1 bg-[rgb(184,115,51)] text-white text-xs font-['Inter'] rounded-full">
-                      Lançamento
-                    </span>
-                    <button
-                      onClick={() => toggleFavorite(product.id)}
-                      className="w-6 h-6 flex items-center justify-center transition-all hover:scale-110"
-                      aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill={isFavorite ? "#B87333" : "none"}
-                        stroke={isFavorite ? "#B87333" : "currentColor"}
-                        strokeWidth="2"
-                        className="transition-colors"
+                <Link href={`/produto/${product.id}`} key={product.id}>
+                  <div className="flex p-6 flex-col justify-center items-center gap-2 w-[288px] rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer">
+                    {/* Header do card - Badge e Coração */}
+                    <div className="w-full flex justify-between items-start mb-2">
+                      <span className="px-3 py-1 bg-[rgb(184,115,51)] text-white text-xs font-['Inter'] rounded-full">
+                        Lançamento
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          toggleFavorite(product.id)
+                        }}
+                        className="w-6 h-6 flex items-center justify-center transition-all hover:scale-110"
+                        aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                       >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                      </svg>
-                    </button>
-                  </div>
-
-                {/* Imagem do produto */}
-                <div className="w-full h-[224px] bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
-                  {hasImage ? (
-                    <img
-                      src={getImageUrl(product.imagens[0])}
-                      alt={product.modelo}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                      Sem imagem
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill={isFavorite ? "#B87333" : "none"}
+                          stroke={isFavorite ? "#B87333" : "currentColor"}
+                          strokeWidth="2"
+                          className="transition-colors"
+                        >
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                      </button>
                     </div>
-                  )}
-                </div>
 
-                {/* Informações do produto */}
-                <div className="w-full flex flex-col gap-2">
-                  <h3 className="text-base font-['Inter'] text-gray-800">
-                    {product.modelo}
-                  </h3>
+                    {/* Imagem do produto */}
+                    <div className="w-full h-[224px] bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
+                      {hasImage ? (
+                        <img
+                          src={getImageUrl(product.imagens[0])}
+                          alt={product.modelo}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                          Sem imagem
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-lg font-['Inter'] font-semibold text-black">
-                      {formatPrice(product.valorM2)}/m²
-                    </span>
-                    <Link href={`/produto/${product.id}`} className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                      </svg>
-                    </Link>
+                    {/* Informações do produto */}
+                    <div className="w-full flex flex-col gap-2">
+                      <h3 className="text-base font-['Inter'] text-gray-800">
+                        {product.modelo}
+                      </h3>
+
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-lg font-['Inter'] font-semibold text-black">
+                          {formatPrice(product.valorM2)}/m²
+                        </span>
+                        <div className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* Estrelas de avaliação (fixo 4 por enquanto) */}
+                      <div className="flex gap-1" title="Avaliação: 4 de 5 estrelas">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <svg
+                            key={star}
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill={star <= 4 ? "#B87333" : "none"}
+                            stroke="#B87333"
+                            strokeWidth="1.5"
+                          >
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                          </svg>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-
-                  {/* Estrelas de avaliação (fixo 4 por enquanto) */}
-                  <div className="flex gap-1" title="Avaliação: 4 de 5 estrelas">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <svg
-                        key={star}
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill={star <= 4 ? "#B87333" : "none"}
-                        stroke="#B87333"
-                        strokeWidth="1.5"
-                      >
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                      </svg>
-                    ))}
-                  </div>
-                </div>
-                </div>
+                </Link>
               )
             }))}
           </div>
@@ -411,87 +410,89 @@ export default function HomePage() {
                 const badgeColor = product.isLancamento ? 'bg-[rgb(184,115,51)]' : product.isMaisVendido ? 'bg-green-600' : ''
 
               return (
-                <div
-                  key={product.id}
-                  className="flex p-6 flex-col justify-center items-center gap-2 w-full rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer"
-                >
-                  {/* Header do card - Badge e Coração */}
-                  <div className="w-full flex justify-between items-start mb-2">
-                    {badge && (
-                      <span className={`px-3 py-1 ${badgeColor} text-white text-xs font-['Inter'] rounded-full`}>
-                        {badge}
-                      </span>
-                    )}
-                    {!badge && <div></div>}
-                    <button
-                      onClick={() => toggleFavorite(product.id)}
-                      className="w-6 h-6 flex items-center justify-center transition-all hover:scale-110"
-                      aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill={isFavorite ? "#B87333" : "none"}
-                        stroke={isFavorite ? "#B87333" : "currentColor"}
-                        strokeWidth="2"
-                        className="transition-colors"
+                <Link href={`/produto/${product.id}`} key={product.id}>
+                  <div className="flex p-6 flex-col justify-center items-center gap-2 w-full rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer">
+                    {/* Header do card - Badge e Coração */}
+                    <div className="w-full flex justify-between items-start mb-2">
+                      {badge && (
+                        <span className={`px-3 py-1 ${badgeColor} text-white text-xs font-['Inter'] rounded-full`}>
+                          {badge}
+                        </span>
+                      )}
+                      {!badge && <div></div>}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          toggleFavorite(product.id)
+                        }}
+                        className="w-6 h-6 flex items-center justify-center transition-all hover:scale-110"
+                        aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                       >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Imagem do produto */}
-                  <div className="w-full h-[224px] bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
-                    {hasImage ? (
-                      <img
-                        src={getImageUrl(product.imagens[0])}
-                        alt={product.modelo}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                        Sem imagem
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Informações do produto */}
-                  <div className="w-full flex flex-col gap-2">
-                    <h3 className="text-base font-['Inter'] text-gray-800">
-                      {product.modelo}
-                    </h3>
-
-                    <div className="flex justify-between items-center w-full">
-                      <span className="text-lg font-['Inter'] font-semibold text-black">
-                        {formatPrice(product.valorM2)}/m²
-                      </span>
-                      <Link href={`/produto/${product.id}`} className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                      </Link>
-                    </div>
-
-                    {/* Estrelas de avaliação (fixo 4 por enquanto) */}
-                    <div className="flex gap-1" title="Avaliação: 4 de 5 estrelas">
-                      {[1, 2, 3, 4, 5].map((star) => (
                         <svg
-                          key={star}
-                          width="16"
-                          height="16"
+                          width="20"
+                          height="20"
                           viewBox="0 0 24 24"
-                          fill={star <= 4 ? "#B87333" : "none"}
-                          stroke="#B87333"
-                          strokeWidth="1.5"
+                          fill={isFavorite ? "#B87333" : "none"}
+                          stroke={isFavorite ? "#B87333" : "currentColor"}
+                          strokeWidth="2"
+                          className="transition-colors"
                         >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
-                      ))}
+                      </button>
+                    </div>
+
+                    {/* Imagem do produto */}
+                    <div className="w-full h-[224px] bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
+                      {hasImage ? (
+                        <img
+                          src={getImageUrl(product.imagens[0])}
+                          alt={product.modelo}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                          Sem imagem
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Informações do produto */}
+                    <div className="w-full flex flex-col gap-2">
+                      <h3 className="text-base font-['Inter'] text-gray-800">
+                        {product.modelo}
+                      </h3>
+
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-lg font-['Inter'] font-semibold text-black">
+                          {formatPrice(product.valorM2)}/m²
+                        </span>
+                        <div className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* Estrelas de avaliação (fixo 4 por enquanto) */}
+                      <div className="flex gap-1" title="Avaliação: 4 de 5 estrelas">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <svg
+                            key={star}
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill={star <= 4 ? "#B87333" : "none"}
+                            stroke="#B87333"
+                            strokeWidth="1.5"
+                          >
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                          </svg>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               )
             }))}
           </div>
@@ -603,13 +604,13 @@ export default function HomePage() {
                 <h3 className="font-['Inter'] font-semibold text-lg mb-4">Sobre nós</h3>
                 <ul className="space-y-3 text-sm text-[rgb(241,237,237)]">
                   <li>
-                    <Link href={"/" as any} className="hover:text-white transition-colors">
+                    <Link href="/servicos" className="hover:text-white transition-colors">
                       Nossa história
                     </Link>
                   </li>
                   <li>
-                    <Link href={"/" as any} className="hover:text-white transition-colors">
-                      Nossa história
+                    <Link href="/servicos" className="hover:text-white transition-colors">
+                      Nossos serviços
                     </Link>
                   </li>
                 </ul>
@@ -621,27 +622,27 @@ export default function HomePage() {
               <h3 className="font-['Inter'] font-semibold text-lg mb-4">Nossos produtos</h3>
               <ul className="space-y-3 text-sm text-[rgb(241,237,237)]">
                 <li>
-                  <Link href={"/" as any} className="hover:text-white transition-colors">
+                  <Link href="/produtos?categoria=cortinas" className="hover:text-white transition-colors">
                     Cortinas
                   </Link>
                 </li>
                 <li>
-                  <Link href={"/" as any} className="hover:text-white transition-colors">
-                    Rolos
+                  <Link href="/produtos?categoria=rolo" className="hover:text-white transition-colors">
+                    Rolô
                   </Link>
                 </li>
                 <li>
-                  <Link href={"/" as any} className="hover:text-white transition-colors">
+                  <Link href="/produtos?categoria=trilagem" className="hover:text-white transition-colors">
                     Trilagem
                   </Link>
                 </li>
                 <li>
-                  <Link href={"/" as any} className="hover:text-white transition-colors">
+                  <Link href="/produtos?categoria=kitbox" className="hover:text-white transition-colors">
                     Kitbox
                   </Link>
                 </li>
                 <li>
-                  <Link href={"/" as any} className="hover:text-white transition-colors">
+                  <Link href="/produtos?categoria=romana" className="hover:text-white transition-colors">
                     Romana
                   </Link>
                 </li>
@@ -651,9 +652,23 @@ export default function HomePage() {
             {/* Coluna 3 - Links rápidos */}
             <div>
               <h3 className="font-['Inter'] font-semibold text-lg mb-4">Links rápidos</h3>
-              <p className="text-sm text-[rgb(241,237,237)] leading-relaxed">
-                Novas persianas chegaram! Descubra estilos exclusivos e transforme seus ambientes com design sob medida.
-              </p>
+              <ul className="space-y-3 text-sm text-[rgb(241,237,237)]">
+                <li>
+                  <Link href="/produtos" className="hover:text-white transition-colors">
+                    Todos os produtos
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/guia-rapido" className="hover:text-white transition-colors">
+                    Guia rápido
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/servicos" className="hover:text-white transition-colors">
+                    Serviços
+                  </Link>
+                </li>
+              </ul>
             </div>
           </div>
 
@@ -664,10 +679,10 @@ export default function HomePage() {
                 © 2025 By Rosa Chic, All Rights Reserved.
               </p>
               <div className="flex gap-8 text-sm text-[rgb(241,237,237)]">
-                <Link href={"/" as any} className="hover:text-white transition-colors">
+                <Link href="/termos" className="hover:text-white transition-colors">
                   Termos e Condições
                 </Link>
-                <Link href={"/" as any} className="hover:text-white transition-colors">
+                <Link href="/privacidade" className="hover:text-white transition-colors">
                   Política de privacidade
                 </Link>
               </div>

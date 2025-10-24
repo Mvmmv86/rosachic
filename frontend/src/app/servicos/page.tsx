@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, ShoppingCart, User, Building2, Sparkles, Phone, MessageCircle } from 'lucide-react'
+import { Search, ShoppingCart, User, Building2, Sparkles, Phone, MessageCircle, Wrench } from 'lucide-react'
 import { Logo } from '@/components/Logo'
 import { ChatWidget } from '@/components/ChatWidget'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
@@ -41,6 +41,22 @@ export default function ServicosPage() {
         'Visita agendada no seu horário',
         'Secagem rápida',
         'Garantia de satisfação'
+      ],
+      availableInRegion: true // VARIÁVEL: Define se serviço está disponível na região
+    },
+    {
+      id: 3,
+      icon: Wrench,
+      title: 'Instalação e Manutenção',
+      subtitle: 'Instalação profissional e suporte completo',
+      description: 'Serviço completo de instalação e manutenção de persianas. Nossa equipe especializada garante a instalação perfeita e oferece suporte técnico para manter suas persianas sempre funcionando perfeitamente.',
+      benefits: [
+        'Instalação profissional certificada',
+        'Manutenção preventiva e corretiva',
+        'Ajustes e regulagens',
+        'Substituição de peças',
+        'Garantia do serviço',
+        'Atendimento emergencial'
       ],
       availableInRegion: true // VARIÁVEL: Define se serviço está disponível na região
     }
