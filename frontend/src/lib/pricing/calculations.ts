@@ -6,14 +6,14 @@ import { roundUp } from '@/lib/utils/math'
  * Schema de entrada para cálculo de preço
  */
 const pricingInputSchema = z.object({
-  // Dimensões
+  // Dimensões - Validação dinâmica baseada em maxWidthCm/maxHeightCm
   widthCm: z.number()
     .min(30, 'Largura mínima: 30cm')
-    .max(300, 'Largura máxima: 300cm'),
+    .max(600, 'Largura máxima absoluta: 600cm'), // Limite absoluto ampliado
 
   heightCm: z.number()
     .min(30, 'Altura mínima: 30cm')
-    .max(350, 'Altura máxima: 350cm'),
+    .max(600, 'Altura máxima absoluta: 600cm'), // Limite absoluto ampliado
 
   // Produto
   productId: z.string().min(1, 'ID do produto obrigatório'),
@@ -55,7 +55,7 @@ const pricingInputSchema = z.object({
     .max(100, 'Desconto máximo: 100%')
     .default(0),
 
-  // Restrições do produto (opcional)
+  // Restrições do produto (usadas para validação customizada)
   maxWidthCm: z.number().optional(),
   maxHeightCm: z.number().optional(),
 })
