@@ -348,11 +348,16 @@ export default function ProductDetailPage() {
                   Selecione a Largura (máx: {product.larguraMaxCm}cm):
                 </label>
                 <select
-                  value={selectedWidthCm || ''}
-                  onChange={(e) => handleDimensionChange(parseFloat(e.target.value) || 0, selectedHeightCm)}
-                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black cursor-pointer"
+                  value={selectedWidthCm || 0}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value)
+                    if (value > 0) {
+                      handleDimensionChange(value, selectedHeightCm)
+                    }
+                  }}
+                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black cursor-pointer focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-[rgb(108,25,29)]"
                 >
-                  <option value="">Selecione a largura</option>
+                  <option value={0} disabled>Selecione a largura</option>
                   {Array.from({ length: Math.floor((Math.min(product.larguraMaxCm, 400) - 30) / 5) + 1 }, (_, i) => 30 + i * 5).map((width) => (
                     <option key={width} value={width}>
                       {width}cm ({(width / 100).toFixed(2)}m)
@@ -367,11 +372,16 @@ export default function ProductDetailPage() {
                   Selecione a Altura (máx: {product.alturaMaxCm}cm):
                 </label>
                 <select
-                  value={selectedHeightCm || ''}
-                  onChange={(e) => handleDimensionChange(selectedWidthCm, parseFloat(e.target.value) || 0)}
-                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black cursor-pointer"
+                  value={selectedHeightCm || 0}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value)
+                    if (value > 0) {
+                      handleDimensionChange(selectedWidthCm, value)
+                    }
+                  }}
+                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black cursor-pointer focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-[rgb(108,25,29)]"
                 >
-                  <option value="">Selecione a altura</option>
+                  <option value={0} disabled>Selecione a altura</option>
                   {Array.from({ length: Math.floor((Math.min(product.alturaMaxCm, 400) - 30) / 5) + 1 }, (_, i) => 30 + i * 5).map((height) => (
                     <option key={height} value={height}>
                       {height}cm ({(height / 100).toFixed(2)}m)

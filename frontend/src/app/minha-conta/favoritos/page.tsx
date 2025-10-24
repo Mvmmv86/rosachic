@@ -1,105 +1,111 @@
 'use client'
 
 import { AccountLayout } from '@/components/AccountLayout'
+import { useFavoritesStore } from '@/store/favorites-store'
+import { useState, useEffect } from 'react'
+import { getProductById, formatPrice, getImageUrl, type Product } from '@/lib/products'
+import Link from 'next/link'
+import { ShoppingCart } from 'lucide-react'
 
 export default function FavoritosPage() {
-  const produtos = [
-    {
-      id: 1,
-      nome: 'Persiana Rolô Tela Solar 5% - Branca',
-      categoria: 'Cortinas',
-      preco: 320.00,
-      badge: 'Lançamento',
-      rating: 4.5,
-      isFavorito: true,
-      imagem: '/product-placeholder.jpg'
-    },
-    {
-      id: 2,
-      nome: 'Persiana Rolô Tela Solar 5% - Branca',
-      categoria: 'Cortinas',
-      preco: 320.00,
-      badge: 'Lançamento',
-      rating: 4.5,
-      isFavorito: true,
-      imagem: '/product-placeholder.jpg'
-    },
-    {
-      id: 3,
-      nome: 'Persiana Rolô Tela Solar 5% - Branca',
-      categoria: 'Cortinas',
-      preco: 320.00,
-      badge: 'Lançamento',
-      rating: 4.5,
-      isFavorito: true,
-      imagem: '/product-placeholder.jpg'
-    },
-    {
-      id: 4,
-      nome: 'Persiana Rolô Tela Solar 5% - Branca',
-      categoria: 'Cortinas',
-      preco: 320.00,
-      badge: 'Lançamento',
-      rating: 4.5,
-      isFavorito: true,
-      imagem: '/product-placeholder.jpg'
-    },
-    {
-      id: 5,
-      nome: 'Persiana Rolô Tela Solar 5% - Branca',
-      categoria: 'Cortinas',
-      preco: 320.00,
-      badge: 'Lançamento',
-      rating: 4.5,
-      isFavorito: true,
-      imagem: '/product-placeholder.jpg'
-    },
-    {
-      id: 6,
-      nome: 'Persiana Rolô Tela Solar 5% - Branca',
-      categoria: 'Cortinas',
-      preco: 320.00,
-      badge: 'Lançamento',
-      rating: 4.5,
-      isFavorito: true,
-      imagem: '/product-placeholder.jpg'
-    },
-  ]
+  const { favorites, toggleFavorite, isFavorite } = useFavoritesStore()
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadFavoriteProducts()
+  }, [favorites])
+
+  const loadFavoriteProducts = async () => {
+    try {
+      setLoading(true)
+      const promises = favorites.map(id => getProductById(id))
+      const results = await Promise.allSettled(promises)
+      const validProducts = results
+        .filter((r): r is PromiseFulfilledResult<Product> => r.status === 'fulfilled')
+        .map(r => r.value)
+      setProducts(validProducts)
+    } catch (error) {
+      console.error('Erro ao carregar favoritos:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <AccountLayout>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-500">Carregando favoritos...</div>
+        </div>
+      </AccountLayout>
+    )
+  }
+
+  if (products.length === 0) {
+    return (
+      <AccountLayout>
+        <div>
+          <h1 className="font-sans text-2xl font-semibold text-black mb-6">
+            Favoritos
+          </h1>
+          <div className="bg-white rounded-xl p-12 text-center">
+            <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-['Inter'] text-gray-600 mb-2">Você ainda não tem favoritos</p>
+            <p className="text-sm text-gray-500 mb-4">Navegue pelos produtos e adicione seus preferidos!</p>
+            <Link
+              href="/produtos"
+              className="inline-block px-6 py-3 bg-[rgb(108,25,29)] text-white rounded-lg hover:bg-[rgb(88,20,24)] transition-colors"
+            >
+              Ver Produtos
+            </Link>
+          </div>
+        </div>
+      </AccountLayout>
+    )
+  }
 
   return (
     <AccountLayout>
       <div>
         <h1 className="font-sans text-2xl font-semibold text-black mb-6">
-          Favoritos
+          Favoritos ({products.length})
         </h1>
 
         {/* Grid de Produtos */}
         <div className="grid grid-cols-3 gap-6 mb-8">
-          {produtos.map((produto) => {
-            const isFavorite = produto.isFavorito
+          {products.map((product) => {
+            const favorite = isFavorite(product.id)
+            const hasImage = product.imagens && product.imagens.length > 0
+
             return (
               <div
-                key={produto.id}
-                className="flex p-6 flex-col justify-center items-center gap-2 rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[rgb(108,25,29)] transition-colors cursor-pointer"
+                key={product.id}
+                className="flex p-6 flex-col justify-center items-center gap-2 rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[rgb(108,25,29)] transition-colors"
               >
                 {/* Header do card */}
                 <div className="w-full flex justify-between items-start mb-2">
-                  {produto.badge ? (
+                  {product.isLancamento ? (
                     <span className="px-3 py-1 bg-[rgb(184,115,51)] text-white text-xs font-['Inter'] rounded-full">
-                      {produto.badge}
+                      Lançamento
                     </span>
                   ) : (
                     <div></div>
                   )}
                   <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleFavorite(product.id)
+                    }}
                     className="w-6 h-6 flex items-center justify-center transition-all hover:scale-110"
+                    aria-label="Remover dos favoritos"
                   >
                     <svg
                       width="20"
                       height="20"
                       viewBox="0 0 24 24"
-                      fill={isFavorite ? "#B87333" : "none"}
-                      stroke={isFavorite ? "#B87333" : "currentColor"}
+                      fill={favorite ? "#B87333" : "none"}
+                      stroke={favorite ? "#B87333" : "currentColor"}
                       strokeWidth="2"
                     >
                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -108,27 +114,39 @@ export default function FavoritosPage() {
                 </div>
 
                 {/* Imagem do produto */}
-                <div className="w-full h-[224px] bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                    Produto {produto.id}
+                <Link href={`/produto/${product.id}`} className="w-full">
+                  <div className="w-full h-[224px] bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden cursor-pointer">
+                    {hasImage ? (
+                      <img
+                        src={getImageUrl(product.imagens[0])}
+                        alt={product.modelo}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                        Sem imagem
+                      </div>
+                    )}
                   </div>
-                </div>
+                </Link>
 
                 {/* Informações */}
                 <div className="w-full flex flex-col gap-2">
-                  <h3 className="text-base font-['Inter'] text-gray-800">
-                    {produto.nome}
-                  </h3>
+                  <Link href={`/produto/${product.id}`}>
+                    <h3 className="text-base font-['Inter'] text-gray-800 hover:text-[rgb(108,25,29)] transition-colors cursor-pointer">
+                      {product.modelo}
+                    </h3>
+                  </Link>
 
                   <div className="flex justify-between items-center w-full">
                     <span className="text-lg font-['Inter'] font-semibold text-black">
-                      R$ {produto.preco.toFixed(2).replace('.', ',')}
+                      {formatPrice(product.valorM2)}/m²
                     </span>
-                    <button className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
+                    <Link href={`/produto/${product.id}`} className="w-6 h-6 flex items-center justify-center text-[rgb(108,25,29)]">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="9 18 15 12 9 6"></polyline>
                       </svg>
-                    </button>
+                    </Link>
                   </div>
 
                   {/* Estrelas */}
@@ -139,7 +157,7 @@ export default function FavoritosPage() {
                         width="16"
                         height="16"
                         viewBox="0 0 24 24"
-                        fill={star <= Math.floor(produto.rating) ? "#B87333" : "none"}
+                        fill={star <= 4 ? "#B87333" : "none"}
                         stroke="#B87333"
                         strokeWidth="1.5"
                       >
@@ -151,20 +169,6 @@ export default function FavoritosPage() {
               </div>
             )
           })}
-        </div>
-
-        {/* Paginação */}
-        <div className="flex items-center justify-center gap-2">
-          <button className="w-10 h-10 flex items-center justify-center bg-[rgb(108,25,29)] text-white font-sans text-sm font-medium rounded-lg">
-            1
-          </button>
-          <button className="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-700 font-sans text-sm font-medium rounded-lg hover:bg-gray-50">
-            2
-          </button>
-          <button className="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-700 font-sans text-sm font-medium rounded-lg hover:bg-gray-50">
-            3
-          </button>
-          <span className="px-2 text-gray-500">...</span>
         </div>
       </div>
     </AccountLayout>

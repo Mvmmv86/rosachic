@@ -7,9 +7,10 @@ import { Logo } from '@/components/Logo'
 import { ChatWidget } from '@/components/ChatWidget'
 import { ChatButton } from '@/components/ChatButton'
 import { getLancamentos, getMaisVendidos, getActiveProducts, formatPrice, getImageUrl, type Product } from '@/lib/products'
+import { useFavoritesStore } from '@/store/favorites-store'
 
 export default function HomePage() {
-  const [favorites, setFavorites] = useState<string[]>([])
+  const { toggleFavorite, isFavorite } = useFavoritesStore()
   const [showChat, setShowChat] = useState(false)
   const [activeTab, setActiveTab] = useState<'todos' | 'lancamentos' | 'mais-vendidos'>('todos')
   const [lancamentos, setLancamentos] = useState<Product[]>([])
@@ -57,13 +58,6 @@ export default function HomePage() {
     }
   }
 
-  const toggleFavorite = (productId: string) => {
-    setFavorites(prev =>
-      prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    )
-  }
 
   // Produtos a exibir na seção "Design Premium"
   const displayedProducts = activeTab === 'todos' ? todosOsProdutos :
@@ -191,7 +185,7 @@ export default function HomePage() {
               </div>
             ) : (
               lancamentos.slice(0, 3).map((product) => {
-                const isFavorite = favorites.includes(product.id)
+                const favorite = isFavorite(product.id)
                 const hasImage = product.imagens && product.imagens.length > 0
 
               return (
@@ -208,14 +202,14 @@ export default function HomePage() {
                           toggleFavorite(product.id)
                         }}
                         className="w-6 h-6 flex items-center justify-center transition-all hover:scale-110"
-                        aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                        aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                       >
                         <svg
                           width="20"
                           height="20"
                           viewBox="0 0 24 24"
-                          fill={isFavorite ? "#B87333" : "none"}
-                          stroke={isFavorite ? "#B87333" : "currentColor"}
+                          fill={favorite ? "#B87333" : "none"}
+                          stroke={favorite ? "#B87333" : "currentColor"}
                           strokeWidth="2"
                           className="transition-colors"
                         >
@@ -404,7 +398,7 @@ export default function HomePage() {
               </div>
             ) : (
               displayedProducts.map((product) => {
-                const isFavorite = favorites.includes(product.id)
+                const favorite = isFavorite(product.id)
                 const hasImage = product.imagens && product.imagens.length > 0
                 const badge = product.isLancamento ? 'Lançamento' : product.isMaisVendido ? 'Mais Vendido' : null
                 const badgeColor = product.isLancamento ? 'bg-[rgb(184,115,51)]' : product.isMaisVendido ? 'bg-green-600' : ''
@@ -426,14 +420,14 @@ export default function HomePage() {
                           toggleFavorite(product.id)
                         }}
                         className="w-6 h-6 flex items-center justify-center transition-all hover:scale-110"
-                        aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                        aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                       >
                         <svg
                           width="20"
                           height="20"
                           viewBox="0 0 24 24"
-                          fill={isFavorite ? "#B87333" : "none"}
-                          stroke={isFavorite ? "#B87333" : "currentColor"}
+                          fill={favorite ? "#B87333" : "none"}
+                          stroke={favorite ? "#B87333" : "currentColor"}
                           strokeWidth="2"
                           className="transition-colors"
                         >
