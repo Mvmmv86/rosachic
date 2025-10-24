@@ -6,32 +6,38 @@ import { Logo } from '@/components/Logo'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { getActiveProducts, formatPrice, getImageUrl, type Product } from '@/lib/products'
+import { useFavoritesStore } from '@/store/favorites-store'
 
 export function ProductsPageClient() {
   const searchParams = useSearchParams()
+  const { toggleFavorite, isFavorite } = useFavoritesStore()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [favorites, setFavorites] = useState<string[]>([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedModelo, setSelectedModelo] = useState<string | null>(null)
+  const [selectedCategoria, setSelectedCategoria] = useState<string | null>(null)
   const [filters, setFilters] = useState({
     environments: [] as string[],
     materials: [] as string[],
-    luminosidade: [] as string[]
+    luminosidade: [] as string[],
+    modelos: [] as string[]
   })
 
   // Aplicar filtros da URL ao carregar
   useEffect(() => {
     const ambiente = searchParams.get('ambiente')
     const material = searchParams.get('material')
+    const modelo = searchParams.get('modelo')
+    const categoria = searchParams.get('categoria')
 
     const newFilters = {
       environments: [] as string[],
       materials: [] as string[],
-      luminosidade: [] as string[]
+      luminosidade: [] as string[],
+      modelos: [] as string[]
     }
 
     if (ambiente) {
-      // Normalizar: primeira letra maiúscula
       const ambienteNorm = ambiente.charAt(0).toUpperCase() + ambiente.slice(1).toLowerCase()
       newFilters.environments = [ambienteNorm]
     }
@@ -39,6 +45,14 @@ export function ProductsPageClient() {
     if (material) {
       const materialNorm = material.charAt(0).toUpperCase() + material.slice(1).toLowerCase()
       newFilters.materials = [materialNorm]
+    }
+
+    if (modelo) {
+      setSelectedModelo(modelo)
+    }
+
+    if (categoria) {
+      setSelectedCategoria(categoria)
     }
 
     setFilters(newFilters)
@@ -61,15 +75,7 @@ export function ProductsPageClient() {
     }
   }
 
-  const toggleFavorite = (productId: string) => {
-    setFavorites(prev =>
-      prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    )
-  }
-
-  const toggleFilter = (type: 'environments' | 'materials' | 'luminosidade', value: string) => {
+  const toggleFilter = (type: 'environments' | 'materials' | 'luminosidade' | 'modelos', value: string) => {
     setFilters(prev => ({
       ...prev,
       [type]: prev[type].includes(value)
@@ -78,45 +84,81 @@ export function ProductsPageClient() {
     }))
   }
 
-  // Filtrar produtos
-  const filteredProducts = products.filter(product => {
-    // Filtro de busca
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase()
-      if (
-        !product.modelo.toLowerCase().includes(search) &&
-        !product.descricao.toLowerCase().includes(search) &&
-        !product.codigo.toLowerCase().includes(search)
-      ) {
-        return false
+  // Filtrar e ordenar produtos
+  const filteredAndSortedProducts = (() => {
+    // 1. Filtrar produtos
+    let filtered = products.filter(product => {
+      // Filtro de busca
+      if (searchTerm) {
+        const search = searchTerm.toLowerCase()
+        if (
+          !product.modelo.toLowerCase().includes(search) &&
+          !product.descricao.toLowerCase().includes(search) &&
+          !product.codigo.toLowerCase().includes(search)
+        ) {
+          return false
+        }
       }
+
+      // Filtro de categoria (ex: kitbox, rolo, romana)
+      if (selectedCategoria) {
+        const modeloLower = product.modelo.toLowerCase()
+        const categoriaLower = selectedCategoria.toLowerCase()
+        if (!modeloLower.includes(categoriaLower)) {
+          return false
+        }
+      }
+
+      // Filtro de material
+      if (filters.materials.length > 0) {
+        if (!filters.materials.some(m => m.toLowerCase() === product.material.toLowerCase())) {
+          return false
+        }
+      }
+
+      // Filtro de luminosidade
+      if (filters.luminosidade.length > 0) {
+        if (!filters.luminosidade.some(l => l.toLowerCase() === product.luminosidade.toLowerCase())) {
+          return false
+        }
+      }
+
+      // Filtro de ambientes
+      if (filters.environments.length > 0) {
+        if (!filters.environments.some(env =>
+          product.ambientes.some(amb => amb.toLowerCase() === env.toLowerCase())
+        )) {
+          return false
+        }
+      }
+
+      // Filtro de modelos
+      if (filters.modelos.length > 0) {
+        const modeloLower = product.modelo.toLowerCase()
+        if (!filters.modelos.some(m => modeloLower.includes(m.toLowerCase()))) {
+          return false
+        }
+      }
+
+      return true
+    })
+
+    // 2. Ordenar: se tem modelo/categoria selecionado, mostrar primeiro
+    if (selectedModelo || selectedCategoria) {
+      const searchTerm = (selectedModelo || selectedCategoria || '').toLowerCase()
+
+      filtered = filtered.sort((a, b) => {
+        const aMatch = a.modelo.toLowerCase().includes(searchTerm)
+        const bMatch = b.modelo.toLowerCase().includes(searchTerm)
+
+        if (aMatch && !bMatch) return -1
+        if (!aMatch && bMatch) return 1
+        return 0
+      })
     }
 
-    // Filtro de material
-    if (filters.materials.length > 0) {
-      if (!filters.materials.some(m => m.toLowerCase() === product.material.toLowerCase())) {
-        return false
-      }
-    }
-
-    // Filtro de luminosidade
-    if (filters.luminosidade.length > 0) {
-      if (!filters.luminosidade.some(l => l.toLowerCase() === product.luminosidade.toLowerCase())) {
-        return false
-      }
-    }
-
-    // Filtro de ambientes
-    if (filters.environments.length > 0) {
-      if (!filters.environments.some(env =>
-        product.ambientes.some(amb => amb.toLowerCase() === env.toLowerCase())
-      )) {
-        return false
-      }
-    }
-
-    return true
-  })
+    return filtered
+  })()
 
   return (
     <div className="min-h-screen bg-[rgb(247,243,239)]">
@@ -149,6 +191,26 @@ export function ProductsPageClient() {
                   className="w-full px-4 py-2 pr-10 rounded-lg border border-brand-neutral-800 text-sm font-['Inter'] text-black placeholder-gray-400 bg-white"
                 />
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
+            </div>
+
+            {/* Filtro: Modelos de Persianas */}
+            <div className="bg-[rgb(241,237,237)] rounded-lg p-6 mb-6 border border-brand-neutral-800">
+              <h3 className="font-['Inter'] font-semibold text-base text-[rgb(108,25,29)] mb-4">Modelos</h3>
+              <div className="space-y-3">
+                {['Horizontal', 'Vertical', 'Madeira', 'Rolô', 'Romana', 'Double Vision'].map((modelo) => (
+                  <label key={modelo} className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={filters.modelos.includes(modelo)}
+                      onChange={() => toggleFilter('modelos', modelo)}
+                      className="w-4 h-4 rounded border-[rgb(108,25,29)] text-[rgb(108,25,29)] focus:ring-[rgb(108,25,29)]"
+                    />
+                    <span className="text-sm font-['Inter'] text-black group-hover:text-[rgb(108,25,29)] transition-colors">
+                      {modelo}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -236,11 +298,16 @@ export function ProductsPageClient() {
               <div className="flex items-center justify-center min-h-[400px]">
                 <div className="text-gray-500 text-lg">Carregando produtos...</div>
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : filteredAndSortedProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
                 <div className="text-gray-500 text-lg">Nenhum produto encontrado</div>
                 <button
-                  onClick={() => setFilters({ environments: [], materials: [], luminosidade: [] })}
+                  onClick={() => {
+                    setFilters({ environments: [], materials: [], luminosidade: [], modelos: [] })
+                    setSearchTerm('')
+                    setSelectedModelo(null)
+                    setSelectedCategoria(null)
+                  }}
                   className="text-sm text-[rgb(108,25,29)] hover:underline"
                 >
                   Limpar filtros
@@ -248,8 +315,8 @@ export function ProductsPageClient() {
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-6 mb-12">
-                {filteredProducts.map((product) => {
-                  const isFavorite = favorites.includes(product.id)
+                {filteredAndSortedProducts.map((product) => {
+                  const favorite = isFavorite(product.id)
                   const hasImage = product.imagens && product.imagens.length > 0
 
                   return (
@@ -279,8 +346,8 @@ export function ProductsPageClient() {
                             width="20"
                             height="20"
                             viewBox="0 0 24 24"
-                            fill={isFavorite ? "#B87333" : "none"}
-                            stroke={isFavorite ? "#B87333" : "currentColor"}
+                            fill={favorite ? "#B87333" : "none"}
+                            stroke={favorite ? "#B87333" : "currentColor"}
                             strokeWidth="2"
                           >
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
