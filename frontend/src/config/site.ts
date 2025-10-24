@@ -2,7 +2,7 @@
 export const SITE_CONFIG = {
   // WhatsApp
   whatsapp: {
-    number: '5541999999999', // TODO: Substituir pelo número real
+    number: '554192245000', // +55 41 9224-5000
     defaultMessage: 'Olá! Gostaria de saber mais sobre as persianas Rosa Chic.',
   },
 
@@ -10,7 +10,7 @@ export const SITE_CONFIG = {
   company: {
     name: 'Rosa Chic Persianas',
     email: 'contato@rosachic.com.br',
-    phone: '(41) 99999-9999',
+    phone: '(41) 9224-5000',
   },
 
   // Endereço (para validação de instalação)

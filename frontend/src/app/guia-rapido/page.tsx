@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { Search, ShoppingCart, User, Clock } from 'lucide-react'
 import { Logo } from '@/components/Logo'
-import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { useState } from 'react'
 
 export default function GuiaRapidoPage() {
@@ -301,9 +300,6 @@ export default function GuiaRapidoPage() {
           </div>
         </div>
       </footer>
-
-      {/* Botão Flutuante WhatsApp */}
-      <WhatsAppButton />
     </div>
   )
 }

@@ -5,10 +5,12 @@ import { Search, ShoppingCart, User, Building2, Sparkles, Phone, MessageCircle, 
 import { Logo } from '@/components/Logo'
 import { ChatWidget } from '@/components/ChatWidget'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
+import { SITE_CONFIG } from '@/config/site'
 import { useState } from 'react'
 
 export default function ServicosPage() {
   const [showChat, setShowChat] = useState(false)
+  const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.number}?text=${encodeURIComponent('Olá! Gostaria de saber mais sobre os serviços da Rosa Chic.')}`
 
   // Dados dos serviços
   const services = [
@@ -159,7 +161,7 @@ export default function ServicosPage() {
 
             {/* Botão WhatsApp */}
             <a
-              href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os serviços da Rosa Chic."
+              href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-8 py-4 bg-[rgb(37,211,102)] text-white rounded-lg font-['Inter'] font-medium text-base hover:bg-[rgb(32,191,85)] transition-colors"

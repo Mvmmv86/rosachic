@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Inter, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/Header'
-import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { Toaster } from 'react-hot-toast'
 
@@ -52,7 +51,6 @@ export default function RootLayout({
           <Toaster position="top-right" />
           <Header />
           {children}
-          <WhatsAppButton />
         </AuthProvider>
       </body>
     </html>
