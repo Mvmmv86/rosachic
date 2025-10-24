@@ -1,8 +1,10 @@
 'use client'
 
+import { SITE_CONFIG } from '@/config/site'
+
 export function WhatsAppButton() {
-  const whatsappNumber = '5511999999999' // VARIÁVEL: Número do WhatsApp (formato internacional)
-  const defaultMessage = 'Olá! Gostaria de saber mais sobre as persianas Rosa Chic.' // VARIÁVEL: Mensagem padrão
+  const whatsappNumber = SITE_CONFIG.whatsapp.number
+  const defaultMessage = SITE_CONFIG.whatsapp.defaultMessage
 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(defaultMessage)}`
 
