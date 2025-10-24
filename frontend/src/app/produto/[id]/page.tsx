@@ -150,8 +150,10 @@ export default function ProductDetailPage() {
       setTimeout(() => setAddedToCart(false), 2000)
 
     } catch (error) {
-      console.error('Erro ao adicionar ao carrinho:', error)
-      alert('Erro ao adicionar ao carrinho. Por favor, tente novamente.')
+      console.error('❌ Erro ao adicionar ao carrinho:', error)
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace')
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      alert(`Erro ao adicionar ao carrinho: ${errorMessage}\n\nVerifique o console para mais detalhes.`)
     }
   }
 
