@@ -1,5 +1,12 @@
 import { api } from './api'
 
+export interface ProductCharacteristic {
+  id: string
+  name: string
+  value: string
+  order: number
+}
+
 export interface Product {
   id: string
   codigo: string
@@ -17,6 +24,7 @@ export interface Product {
   alturaMaxCm: number
   areaMinM2: number
   ambientes: string[]
+  characteristics?: ProductCharacteristic[]
   createdAt: string
   updatedAt: string
 }

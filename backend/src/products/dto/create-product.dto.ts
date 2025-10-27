@@ -1,5 +1,19 @@
-import { IsString, IsNumber, IsEnum, IsArray, IsBoolean, IsOptional, Min, Max } from 'class-validator'
+import { IsString, IsNumber, IsEnum, IsArray, IsBoolean, IsOptional, Min, Max, ValidateNested } from 'class-validator'
+import { Type } from 'class-transformer'
 import { Luminosidade, Material } from '@prisma/client'
+
+// DTO para características customizáveis
+export class ProductCharacteristicDto {
+  @IsString()
+  name: string
+
+  @IsString()
+  value: string
+
+  @IsNumber()
+  @IsOptional()
+  order?: number
+}
 
 export class CreateProductDto {
   @IsString()
@@ -60,4 +74,10 @@ export class CreateProductDto {
   @IsBoolean()
   @IsOptional()
   isMaisVendido?: boolean
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductCharacteristicDto)
+  @IsOptional()
+  characteristics?: ProductCharacteristicDto[]
 }

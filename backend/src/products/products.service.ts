@@ -10,10 +10,12 @@ export class ProductsService {
 
   async create(data: CreateProductDto) {
     try {
+      const { characteristics, ...productData } = data
+
       // Para SQLite, converter arrays para JSON string
       const product = await this.prisma.product.create({
         data: {
-          ...data,
+          ...productData,
           ambientes: JSON.stringify(data.ambientes),
           imagens: JSON.stringify(data.imagens),
           areaMinM2: data.areaMinM2 ?? 1.0,
@@ -21,6 +23,21 @@ export class ProductsService {
           ativo: data.ativo ?? true,
           isLancamento: data.isLancamento ?? false,
           isMaisVendido: data.isMaisVendido ?? false,
+          // Criar características customizáveis
+          characteristics: characteristics
+            ? {
+                create: characteristics.map((char, index) => ({
+                  name: char.name,
+                  value: char.value,
+                  order: char.order ?? index,
+                })),
+              }
+            : undefined,
+        },
+        include: {
+          characteristics: {
+            orderBy: { order: 'asc' },
+          },
         },
       })
 
@@ -49,6 +66,11 @@ export class ProductsService {
         take,
         where,
         orderBy: orderBy || { createdAt: 'desc' },
+        include: {
+          characteristics: {
+            orderBy: { order: 'asc' },
+          },
+        },
       }),
       this.prisma.product.count({ where }),
     ])
@@ -64,6 +86,11 @@ export class ProductsService {
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
+      include: {
+        characteristics: {
+          orderBy: { order: 'asc' },
+        },
+      },
     })
 
     if (!product) {
@@ -76,6 +103,11 @@ export class ProductsService {
   async findByCodigo(codigo: string) {
     const product = await this.prisma.product.findUnique({
       where: { codigo },
+      include: {
+        characteristics: {
+          orderBy: { order: 'asc' },
+        },
+      },
     })
 
     if (!product) {
@@ -87,7 +119,8 @@ export class ProductsService {
 
   async update(id: string, data: UpdateProductDto) {
     try {
-      const updateData: any = { ...data }
+      const { characteristics, ...productData } = data
+      const updateData: any = { ...productData }
 
       // Converter arrays para JSON string se fornecidos
       if (data.ambientes) {
@@ -97,9 +130,31 @@ export class ProductsService {
         updateData.imagens = JSON.stringify(data.imagens)
       }
 
+      // Se characteristics foi fornecido, deletar as antigas e criar novas
+      if (characteristics !== undefined) {
+        // Deletar características antigas
+        await this.prisma.productCharacteristic.deleteMany({
+          where: { productId: id },
+        })
+
+        // Adicionar novas características
+        updateData.characteristics = {
+          create: characteristics.map((char, index) => ({
+            name: char.name,
+            value: char.value,
+            order: char.order ?? index,
+          })),
+        }
+      }
+
       const product = await this.prisma.product.update({
         where: { id },
         data: updateData,
+        include: {
+          characteristics: {
+            orderBy: { order: 'asc' },
+          },
+        },
       })
 
       return this.formatProduct(product)
@@ -138,6 +193,11 @@ export class ProductsService {
     const products = await this.prisma.product.findMany({
       where: { ativo: true },
       orderBy: { modelo: 'asc' },
+      include: {
+        characteristics: {
+          orderBy: { order: 'asc' },
+        },
+      },
     })
 
     return products.map(p => this.formatProduct(p))
@@ -151,6 +211,11 @@ export class ProductsService {
         ativo: true,
       },
       orderBy: { valorM2: 'asc' },
+      include: {
+        characteristics: {
+          orderBy: { order: 'asc' },
+        },
+      },
     })
 
     return products.map(p => this.formatProduct(p))
@@ -164,6 +229,11 @@ export class ProductsService {
         ativo: true,
       },
       orderBy: { valorM2: 'asc' },
+      include: {
+        characteristics: {
+          orderBy: { order: 'asc' },
+        },
+      },
     })
 
     return products.map(p => this.formatProduct(p))
@@ -178,6 +248,11 @@ export class ProductsService {
         ativo: true,
       },
       orderBy: { valorM2: 'asc' },
+      include: {
+        characteristics: {
+          orderBy: { order: 'asc' },
+        },
+      },
     })
 
     return products.map(p => this.formatProduct(p))
@@ -191,6 +266,11 @@ export class ProductsService {
         ativo: true,
       },
       orderBy: { createdAt: 'desc' },
+      include: {
+        characteristics: {
+          orderBy: { order: 'asc' },
+        },
+      },
     })
 
     return products.map(p => this.formatProduct(p))
@@ -204,6 +284,11 @@ export class ProductsService {
         ativo: true,
       },
       orderBy: { createdAt: 'desc' },
+      include: {
+        characteristics: {
+          orderBy: { order: 'asc' },
+        },
+      },
     })
 
     return products.map(p => this.formatProduct(p))

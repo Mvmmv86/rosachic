@@ -5,6 +5,12 @@ import { api } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Upload, X, Plus } from 'lucide-react'
 
+interface ProductCharacteristic {
+  name: string
+  value: string
+  order?: number
+}
+
 interface FormData {
   codigo: string
   modelo: string
@@ -20,6 +26,7 @@ interface FormData {
   ativo: boolean
   isLancamento: boolean
   isMaisVendido: boolean
+  characteristics: ProductCharacteristic[]
 }
 
 export default function NewProductPage() {
@@ -43,6 +50,7 @@ export default function NewProductPage() {
     ativo: true,
     isLancamento: false,
     isMaisVendido: false,
+    characteristics: [],
   })
 
   const handleInputChange = (
@@ -106,6 +114,30 @@ export default function NewProductPage() {
     setFormData({
       ...formData,
       ambientes: formData.ambientes.filter(a => a !== ambiente)
+    })
+  }
+
+  // Gerenciar características customizáveis
+  const addCharacteristic = () => {
+    setFormData({
+      ...formData,
+      characteristics: [...formData.characteristics, { name: '', value: '', order: formData.characteristics.length }]
+    })
+  }
+
+  const updateCharacteristic = (index: number, field: 'name' | 'value', value: string) => {
+    const updated = [...formData.characteristics]
+    updated[index][field] = value
+    setFormData({
+      ...formData,
+      characteristics: updated
+    })
+  }
+
+  const removeCharacteristic = (index: number) => {
+    setFormData({
+      ...formData,
+      characteristics: formData.characteristics.filter((_, i) => i !== index)
     })
   }
 
@@ -363,6 +395,51 @@ export default function NewProductPage() {
               </span>
             ))}
           </div>
+        </div>
+
+        {/* Características Customizáveis */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Características Adicionais</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Adicione características personalizadas que aparecerão na página do produto (ex: Tipo de Instalação, Garantia, Acabamento)
+          </p>
+
+          <div className="space-y-3 mb-4">
+            {formData.characteristics.map((char, index) => (
+              <div key={index} className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Nome (ex: Garantia)"
+                  value={char.name}
+                  onChange={(e) => updateCharacteristic(index, 'name', e.target.value)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-maroon-500 focus:border-transparent outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Valor (ex: 2 anos)"
+                  value={char.value}
+                  onChange={(e) => updateCharacteristic(index, 'value', e.target.value)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-maroon-500 focus:border-transparent outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeCharacteristic(index)}
+                  className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={addCharacteristic}
+            className="px-4 py-2 bg-brand-maroon-700 text-white rounded-lg hover:bg-brand-maroon-800 transition flex items-center gap-2"
+          >
+            <Plus size={18} />
+            Adicionar Característica
+          </button>
         </div>
 
         {/* Imagens */}

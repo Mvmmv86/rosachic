@@ -660,6 +660,18 @@ export default function ProductDetailPage() {
                     <span className="text-sm font-['Inter'] text-[rgb(98,86,86)]">{product.ambientes.join(', ')}</span>
                   </div>
                 </div>
+
+                {/* Características Customizáveis */}
+                {product.characteristics && product.characteristics.length > 0 && product.characteristics.map((char, index) => (
+                  <div key={char.id} className={`flex gap-2 px-4 py-2 ${index % 2 === 0 ? '' : 'bg-[rgb(241,237,237)]'}`}>
+                    <div className="w-[272px] flex-shrink-0">
+                      <span className="text-sm font-['Inter'] text-black font-medium">{char.name}</span>
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm font-['Inter'] text-[rgb(98,86,86)]">{char.value}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
