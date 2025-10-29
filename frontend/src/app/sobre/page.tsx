@@ -18,25 +18,25 @@ export default function SobrePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[rgb(247,243,239)] to-white">
       {/* Hero Section com Parallax */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-        {/* Background com gradiente igual ao footer/CTA */}
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-white">
+        {/* Background com cor branca igual à seção Nossa História */}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-[rgb(108,25,29)] to-[rgb(184,115,51)]"
+          className="absolute inset-0 bg-white"
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
         />
 
-        {/* Padrão decorativo com animação - bolinhas menores */}
-        <div className="absolute inset-0 opacity-20">
+        {/* Padrão decorativo com animação - bolinhas cor vinho da navbar */}
+        <div className="absolute inset-0 opacity-15">
           <div
-            className="absolute top-20 left-20 w-48 h-48 border-2 border-white rounded-full animate-float"
+            className="absolute top-20 left-20 w-48 h-48 border-2 border-[rgb(108,25,29)] rounded-full animate-float"
             style={{ animation: 'float 20s ease-in-out infinite' }}
           />
           <div
-            className="absolute bottom-40 right-32 w-64 h-64 border-2 border-white rounded-full animate-float-slow"
+            className="absolute bottom-40 right-32 w-64 h-64 border-2 border-[rgb(108,25,29)] rounded-full animate-float-slow"
             style={{ animation: 'float 25s ease-in-out infinite 2s' }}
           />
           <div
-            className="absolute top-1/2 left-1/3 w-32 h-32 border-2 border-white rounded-full animate-float-slower"
+            className="absolute top-1/2 left-1/3 w-32 h-32 border-2 border-[rgb(108,25,29)] rounded-full animate-float-slower"
             style={{ animation: 'float 30s ease-in-out infinite 5s' }}
           />
         </div>
@@ -61,17 +61,17 @@ export default function SobrePage() {
 
         {/* Conteúdo Hero */}
         <div className={`relative z-10 text-center px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <h1 className="text-6xl md:text-7xl font-['Cormorant_Garamond'] font-bold text-white mb-6">
+          <h1 className="text-6xl md:text-7xl font-['Cormorant_Garamond'] font-bold text-[rgb(108,25,29)] mb-6">
             Sobre a Rosa Chic
           </h1>
-          <p className="text-xl md:text-2xl font-['Inter'] text-[rgb(241,237,237)] max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl font-['Inter'] text-gray-700 max-w-3xl mx-auto leading-relaxed">
             Transformando ambientes com elegância e funcionalidade desde 2009
           </p>
         </div>
 
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-8 h-8 text-white" />
+          <ChevronDown className="w-8 h-8 text-[rgb(108,25,29)]" />
         </div>
       </section>
 
