@@ -18,10 +18,10 @@ export default function SobrePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[rgb(247,243,239)] to-white">
       {/* Hero Section com Parallax */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-white">
-        {/* Background com cor branca igual à seção Nossa História */}
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+        {/* Background com cor bege igual à seção Nossa História */}
         <div
-          className="absolute inset-0 bg-white"
+          className="absolute inset-0 bg-[rgb(247,243,239)]"
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
         />
 

@@ -598,7 +598,7 @@ export default function HomePage() {
                 <h3 className="font-['Inter'] font-semibold text-lg mb-4">Sobre nós</h3>
                 <ul className="space-y-3 text-sm text-[rgb(241,237,237)]">
                   <li>
-                    <Link href="/servicos" className="hover:text-white transition-colors">
+                    <Link href="/sobre" className="hover:text-white transition-colors">
                       Nossa história
                     </Link>
                   </li>
