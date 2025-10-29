@@ -190,7 +190,7 @@ export default function HomePage() {
 
               return (
                 <Link href={`/produto/${product.id}`} key={product.id}>
-                  <div className="flex p-6 flex-col justify-center items-center gap-2 w-[288px] rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer">
+                  <div className="flex p-6 flex-col justify-center items-center gap-2 w-[288px] min-h-[420px] rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer">
                     {/* Header do card - Badge e Coração */}
                     <div className="w-full flex justify-between items-start mb-2">
                       <span className="px-3 py-1 bg-[rgb(184,115,51)] text-white text-xs font-['Inter'] rounded-full">
@@ -235,7 +235,7 @@ export default function HomePage() {
 
                     {/* Informações do produto */}
                     <div className="w-full flex flex-col gap-2">
-                      <h3 className="text-base font-['Inter'] text-gray-800">
+                      <h3 className="text-base font-['Inter'] text-gray-800 line-clamp-2 min-h-[48px]">
                         {product.modelo}
                       </h3>
 
@@ -405,7 +405,7 @@ export default function HomePage() {
 
               return (
                 <Link href={`/produto/${product.id}`} key={product.id}>
-                  <div className="flex p-6 flex-col justify-center items-center gap-2 w-full rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer">
+                  <div className="flex p-6 flex-col justify-center items-center gap-2 w-full min-h-[420px] rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer">
                     {/* Header do card - Badge e Coração */}
                     <div className="w-full flex justify-between items-start mb-2">
                       {badge && (
@@ -453,7 +453,7 @@ export default function HomePage() {
 
                     {/* Informações do produto */}
                     <div className="w-full flex flex-col gap-2">
-                      <h3 className="text-base font-['Inter'] text-gray-800">
+                      <h3 className="text-base font-['Inter'] text-gray-800 line-clamp-2 min-h-[48px]">
                         {product.modelo}
                       </h3>
 

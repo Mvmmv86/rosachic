@@ -261,6 +261,8 @@ enum Role {
 enum Luminosidade {
   Translucida
   Blackout
+  Regulavel
+  Nenhuma
 }
 
 enum Material {
