@@ -18,25 +18,25 @@ export default function SobrePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[rgb(247,243,239)] to-white">
       {/* Hero Section com Parallax */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background com gradiente mais forte no topo */}
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+        {/* Background com gradiente branco no topo para combinar com header */}
         <div
-          className="absolute inset-0 bg-gradient-to-b from-[rgb(90,20,24)] via-[rgb(108,25,29)] to-[rgb(108,25,29)]/80"
+          className="absolute inset-0 bg-gradient-to-b from-white via-[rgb(247,243,239)] to-[rgb(108,25,29)]"
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
         />
 
         {/* Padrão decorativo com animação */}
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-15">
           <div
-            className="absolute top-20 left-20 w-64 h-64 border-2 border-white rounded-full animate-float"
+            className="absolute top-20 left-20 w-64 h-64 border-2 border-[rgb(108,25,29)] rounded-full animate-float"
             style={{ animation: 'float 20s ease-in-out infinite' }}
           />
           <div
-            className="absolute bottom-40 right-32 w-96 h-96 border-2 border-white rounded-full animate-float-slow"
+            className="absolute bottom-40 right-32 w-96 h-96 border-2 border-[rgb(108,25,29)] rounded-full animate-float-slow"
             style={{ animation: 'float 25s ease-in-out infinite 2s' }}
           />
           <div
-            className="absolute top-1/2 left-1/3 w-48 h-48 border-2 border-white rounded-full animate-float-slower"
+            className="absolute top-1/2 left-1/3 w-48 h-48 border-2 border-[rgb(108,25,29)] rounded-full animate-float-slower"
             style={{ animation: 'float 30s ease-in-out infinite 5s' }}
           />
         </div>
@@ -61,17 +61,17 @@ export default function SobrePage() {
 
         {/* Conteúdo Hero */}
         <div className={`relative z-10 text-center px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <h1 className="text-6xl md:text-7xl font-['Cormorant_Garamond'] font-bold text-white mb-6">
+          <h1 className="text-6xl md:text-7xl font-['Cormorant_Garamond'] font-bold text-[rgb(108,25,29)] mb-6">
             Sobre a Rosa Chic
           </h1>
-          <p className="text-xl md:text-2xl font-['Inter'] text-[rgb(241,237,237)] max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl font-['Inter'] text-gray-700 max-w-3xl mx-auto leading-relaxed">
             Transformando ambientes com elegância e funcionalidade desde 2009
           </p>
         </div>
 
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-8 h-8 text-white" />
+          <ChevronDown className="w-8 h-8 text-[rgb(108,25,29)]" />
         </div>
       </section>
 
@@ -150,8 +150,7 @@ export default function SobrePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Propósito */}
             <div className="group relative h-full">
-              <div className="absolute inset-0 bg-gradient-to-br from-[rgb(108,25,29)] to-[rgb(184,115,51)] rounded-3xl transform group-hover:scale-105 transition-transform duration-300 opacity-0 group-hover:opacity-100" />
-              <div className="relative bg-white rounded-3xl p-8 h-full flex flex-col shadow-xl group-hover:shadow-2xl transition-all duration-300 border-2 border-[rgb(241,237,237)] group-hover:border-transparent transform group-hover:-translate-y-2">
+              <div className="relative bg-white group-hover:bg-gradient-to-br group-hover:from-[rgb(108,25,29)] group-hover:to-[rgb(184,115,51)] rounded-3xl p-8 h-full flex flex-col shadow-xl group-hover:shadow-2xl transition-all duration-300 border-2 border-[rgb(241,237,237)] group-hover:border-transparent transform group-hover:-translate-y-2 group-hover:scale-105">
                 <div className="w-16 h-16 bg-gradient-to-br from-[rgb(108,25,29)] to-[rgb(184,115,51)] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -168,8 +167,7 @@ export default function SobrePage() {
 
             {/* Missão */}
             <div className="group relative h-full">
-              <div className="absolute inset-0 bg-gradient-to-br from-[rgb(108,25,29)] to-[rgb(184,115,51)] rounded-3xl transform group-hover:scale-105 transition-transform duration-300 opacity-0 group-hover:opacity-100" />
-              <div className="relative bg-white rounded-3xl p-8 h-full flex flex-col shadow-xl group-hover:shadow-2xl transition-all duration-300 border-2 border-[rgb(241,237,237)] group-hover:border-transparent transform group-hover:-translate-y-2">
+              <div className="relative bg-white group-hover:bg-gradient-to-br group-hover:from-[rgb(108,25,29)] group-hover:to-[rgb(184,115,51)] rounded-3xl p-8 h-full flex flex-col shadow-xl group-hover:shadow-2xl transition-all duration-300 border-2 border-[rgb(241,237,237)] group-hover:border-transparent transform group-hover:-translate-y-2 group-hover:scale-105">
                 <div className="w-16 h-16 bg-gradient-to-br from-[rgb(108,25,29)] to-[rgb(184,115,51)] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
@@ -186,8 +184,7 @@ export default function SobrePage() {
 
             {/* Visão */}
             <div className="group relative h-full">
-              <div className="absolute inset-0 bg-gradient-to-br from-[rgb(108,25,29)] to-[rgb(184,115,51)] rounded-3xl transform group-hover:scale-105 transition-transform duration-300 opacity-0 group-hover:opacity-100" />
-              <div className="relative bg-white rounded-3xl p-8 h-full flex flex-col shadow-xl group-hover:shadow-2xl transition-all duration-300 border-2 border-[rgb(241,237,237)] group-hover:border-transparent transform group-hover:-translate-y-2">
+              <div className="relative bg-white group-hover:bg-gradient-to-br group-hover:from-[rgb(108,25,29)] group-hover:to-[rgb(184,115,51)] rounded-3xl p-8 h-full flex flex-col shadow-xl group-hover:shadow-2xl transition-all duration-300 border-2 border-[rgb(241,237,237)] group-hover:border-transparent transform group-hover:-translate-y-2 group-hover:scale-105">
                 <div className="w-16 h-16 bg-gradient-to-br from-[rgb(108,25,29)] to-[rgb(184,115,51)] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
