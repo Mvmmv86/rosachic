@@ -274,8 +274,10 @@ export default function EditProductPage() {
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-maroon-500 focus:border-transparent outline-none"
               >
+                <option value="Nenhuma">Nenhuma</option>
                 <option value="Translucida">Translúcida</option>
                 <option value="Blackout">Blackout</option>
+                <option value="Regulavel">Regulável</option>
               </select>
             </div>
 
