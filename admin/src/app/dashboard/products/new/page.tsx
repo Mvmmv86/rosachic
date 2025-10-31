@@ -244,7 +244,7 @@ export default function NewProductPage() {
                 <option value="Tecido">Tecido</option>
                 <option value="Madeira">Madeira</option>
                 <option value="PVC">PVC</option>
-                <option value="Alumínio">Alumínio</option>
+                <option value="Aluminio">Alumínio</option>
                 <option value="Bambu">Bambu</option>
               </select>
             </div>
