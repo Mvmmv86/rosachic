@@ -10,6 +10,12 @@ export class ProductsService {
 
   async create(data: CreateProductDto) {
     try {
+      console.log('📦 Criando produto:', {
+        codigo: data.codigo,
+        material: data.material,
+        luminosidade: data.luminosidade
+      })
+
       const { characteristics, ...productData } = data
 
       // Filtrar características vazias (name ou value vazio)
@@ -17,7 +23,13 @@ export class ProductsService {
         char => char.name.trim() && char.value.trim()
       )
 
-      // Para SQLite, converter arrays para JSON string
+      console.log('✅ Dados processados:', {
+        ambientes: data.ambientes?.length || 0,
+        imagens: data.imagens?.length || 0,
+        characteristics: validCharacteristics?.length || 0
+      })
+
+      // Para SQLite/PostgreSQL, converter arrays para JSON string
       const product = await this.prisma.product.create({
         data: {
           ...productData,
@@ -46,9 +58,13 @@ export class ProductsService {
         },
       })
 
+      console.log('✅ Produto criado com sucesso:', product.id)
       return this.formatProduct(product)
     } catch (error) {
+      console.error('❌ Erro ao criar produto:', error)
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error('❌ Prisma error code:', error.code)
+        console.error('❌ Prisma error meta:', error.meta)
         if (error.code === 'P2002') {
           throw new BadRequestException('Código de produto já existe')
         }
