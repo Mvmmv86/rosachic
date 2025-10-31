@@ -49,11 +49,13 @@ export class CreateProductDto {
 
   @IsArray()
   @IsString({ each: true })
-  ambientes: string[]
+  @IsOptional()
+  ambientes?: string[]
 
   @IsArray()
   @IsString({ each: true })
-  imagens: string[]
+  @IsOptional()
+  imagens?: string[]
 
   @IsString()
   descricao: string

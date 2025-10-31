@@ -12,21 +12,26 @@ export class ProductsService {
     try {
       const { characteristics, ...productData } = data
 
+      // Filtrar características vazias (name ou value vazio)
+      const validCharacteristics = characteristics?.filter(
+        char => char.name.trim() && char.value.trim()
+      )
+
       // Para SQLite, converter arrays para JSON string
       const product = await this.prisma.product.create({
         data: {
           ...productData,
-          ambientes: JSON.stringify(data.ambientes),
-          imagens: JSON.stringify(data.imagens),
+          ambientes: JSON.stringify(data.ambientes || []),
+          imagens: JSON.stringify(data.imagens || []),
           areaMinM2: data.areaMinM2 ?? 1.0,
           estoque: data.estoque ?? 0,
           ativo: data.ativo ?? true,
           isLancamento: data.isLancamento ?? false,
           isMaisVendido: data.isMaisVendido ?? false,
           // Criar características customizáveis
-          characteristics: characteristics
+          characteristics: validCharacteristics && validCharacteristics.length > 0
             ? {
-                create: characteristics.map((char, index) => ({
+                create: validCharacteristics.map((char, index) => ({
                   name: char.name,
                   value: char.value,
                   order: char.order ?? index,
@@ -123,27 +128,34 @@ export class ProductsService {
       const updateData: any = { ...productData }
 
       // Converter arrays para JSON string se fornecidos
-      if (data.ambientes) {
-        updateData.ambientes = JSON.stringify(data.ambientes)
+      if (data.ambientes !== undefined) {
+        updateData.ambientes = JSON.stringify(data.ambientes || [])
       }
-      if (data.imagens) {
-        updateData.imagens = JSON.stringify(data.imagens)
+      if (data.imagens !== undefined) {
+        updateData.imagens = JSON.stringify(data.imagens || [])
       }
 
       // Se characteristics foi fornecido, deletar as antigas e criar novas
       if (characteristics !== undefined) {
+        // Filtrar características vazias (name ou value vazio)
+        const validCharacteristics = characteristics.filter(
+          char => char.name.trim() && char.value.trim()
+        )
+
         // Deletar características antigas
         await this.prisma.productCharacteristic.deleteMany({
           where: { productId: id },
         })
 
-        // Adicionar novas características
-        updateData.characteristics = {
-          create: characteristics.map((char, index) => ({
-            name: char.name,
-            value: char.value,
-            order: char.order ?? index,
-          })),
+        // Adicionar novas características válidas
+        if (validCharacteristics.length > 0) {
+          updateData.characteristics = {
+            create: validCharacteristics.map((char, index) => ({
+              name: char.name,
+              value: char.value,
+              order: char.order ?? index,
+            })),
+          }
         }
       }
 
