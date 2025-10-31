@@ -270,6 +270,7 @@ enum Material {
   PVC
   Madeira
   Bambu
+  Aluminio
 }
 
 enum OrderStatus {
