@@ -146,8 +146,14 @@ export default function NewProductPage() {
     setLoading(true)
 
     try {
+      // Filtrar características vazias antes de enviar
+      const validCharacteristics = formData.characteristics.filter(
+        char => char.name.trim() !== '' && char.value.trim() !== ''
+      )
+
       const payload = {
         ...formData,
+        characteristics: validCharacteristics,
         imagens,
       }
 
