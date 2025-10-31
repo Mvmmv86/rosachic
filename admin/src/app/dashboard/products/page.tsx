@@ -220,7 +220,7 @@ export default function ProductsPage() {
                       <div className="flex items-center">
                         {product.imagens && product.imagens.length > 0 ? (
                           <img
-                            src={`http://localhost:3000/uploads/${product.imagens[0]}`}
+                            src={product.imagens[0].startsWith('http') ? product.imagens[0] : `http://localhost:3001/uploads/${product.imagens[0]}`}
                             alt={product.modelo}
                             className="h-10 w-10 rounded object-cover mr-3"
                           />
