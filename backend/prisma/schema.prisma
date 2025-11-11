@@ -4,9 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -306,7 +305,7 @@ enum CheckoutMode {
 model ChatKnowledge {
   id          String   @id @default(uuid())
   title       String
-  content     String   @db.Text
+  content     String
   category    String?
   active      Boolean  @default(true)
   createdAt   DateTime @default(now()) @map("created_at")
