@@ -107,10 +107,10 @@ export default function ProductDetailPage() {
       const materialFactor = getMaterialFactor(product.material.toLowerCase().replace(/\s+/g, '_') as any) || 1.0
 
       // DEBUG: Log estado das checkboxes
-      console.log('🔍 DEBUG - Estado das checkboxes:')
-      console.log('  hasBando:', hasBando)
-      console.log('  hasInstallation:', hasInstallation)
-      console.log('  installationPercentage calculado:', hasInstallation ? 8 : 0)
+      // console.log('🔍 DEBUG - Estado das checkboxes:')
+      // console.log('  hasBando:', hasBando)
+      // console.log('  hasInstallation:', hasInstallation)
+      // console.log('  installationPercentage calculado:', hasInstallation ? 8 : 0)
 
       const pricingInput = {
         widthCm: selectedWidthCm,
