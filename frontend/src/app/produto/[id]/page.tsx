@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ShoppingCart, ChevronRight, ChevronLeft, Check, AlertCircle, Info } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { getProductById, calculatePrice, formatPrice, getImageUrl, validateDimensions, type Product } from '@/lib/products'
+import { getProductById, formatPrice, getImageUrl, validateDimensions, type Product } from '@/lib/products'
 import { useCartStore } from '@/store/cart-store'
 import { calculatePrice as calculatePricing, getMaterialFactor } from '@/lib/pricing/calculations'
 import { validateInstallationAvailability } from '@/lib/cep-validator'
@@ -25,10 +25,16 @@ export default function ProductDetailPage() {
   const [selectedHeightCm, setSelectedHeightCm] = useState<number>(0)
   const [selectedWidthCm, setSelectedWidthCm] = useState<number>(0)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [dimensionWarnings, setDimensionWarnings] = useState<string[]>([])
 
   // Optional services state
   const [hasBando, setHasBando] = useState(false)
   const [hasInstallation, setHasInstallation] = useState(false)
+
+  // Command configuration state
+  const [commandSide, setCommandSide] = useState<'esquerdo' | 'direito'>('direito')
+  const [commandHeight, setCommandHeight] = useState<number>(160) // altura padrão em cm
+  const [commandColor, setCommandColor] = useState<string>('branco')
 
   // Feedback state
   const [addedToCart, setAddedToCart] = useState(false)
@@ -69,8 +75,24 @@ export default function ProductDetailPage() {
     if (product && larguraCm > 0 && alturaCm > 0) {
       const validation = validateDimensions(product, larguraCm, alturaCm)
       setValidationErrors(validation.errors)
+
+      // Verificar avisos de dimensões
+      const warnings: string[] = []
+
+      // Aviso para larguras > 2m
+      if (larguraCm > 200) {
+        warnings.push('Para larguras maiores que 2,00m recomendamos dividir em 2 ou mais partes')
+      }
+
+      // Aviso adicional para persianas muito grandes (largura > 2m E altura > 2m)
+      if (larguraCm > 200 && alturaCm > 200) {
+        warnings.push('Atenção: Persiana com largura e altura maiores que 2m pode apresentar problemas. Considere dividir em módulos.')
+      }
+
+      setDimensionWarnings(warnings)
     } else {
       setValidationErrors([])
+      setDimensionWarnings([])
     }
   }
 
@@ -85,10 +107,10 @@ export default function ProductDetailPage() {
       const materialFactor = getMaterialFactor(product.material.toLowerCase().replace(/\s+/g, '_') as any) || 1.0
 
       // DEBUG: Log estado das checkboxes
-      console.log('🔍 DEBUG - Estado das checkboxes:')
-      console.log('  hasBando:', hasBando)
-      console.log('  hasInstallation:', hasInstallation)
-      console.log('  installationPercentage calculado:', hasInstallation ? 8 : 0)
+      // console.log('🔍 DEBUG - Estado das checkboxes:')
+      // console.log('  hasBando:', hasBando)
+      // console.log('  hasInstallation:', hasInstallation)
+      // console.log('  installationPercentage calculado:', hasInstallation ? 8 : 0)
 
       const pricingInput = {
         widthCm: selectedWidthCm,
@@ -138,6 +160,11 @@ export default function ProductDetailPage() {
           motor: false,
           installation: hasInstallation,
         },
+        commandConfig: {
+          side: commandSide,
+          height: commandHeight,
+          color: commandColor,
+        },
       }
 
       // DEBUG: Log item que será adicionado ao carrinho
@@ -166,11 +193,11 @@ export default function ProductDetailPage() {
   }
 
   // Usar a MESMA função de cálculo que o carrinho para evitar divergências
-  const calculatedPrice = product && selectedWidthCm > 0 && selectedHeightCm > 0
+  const pricingResult = product && selectedWidthCm > 0 && selectedHeightCm > 0
     ? (() => {
         try {
           const materialFactor = getMaterialFactor(product.material.toLowerCase().replace(/\s+/g, '_') as any) || 1.0
-          const result = calculatePricing({
+          return calculatePricing({
             widthCm: selectedWidthCm,
             heightCm: selectedHeightCm,
             productId: product.id,
@@ -185,13 +212,14 @@ export default function ProductDetailPage() {
             maxWidthCm: product.larguraMaxCm,
             maxHeightCm: product.alturaMaxCm,
           })
-          return result.totalFinal
         } catch (error) {
           console.error('Erro ao calcular preço:', error)
-          return 0
+          return null
         }
       })()
-    : 0
+    : null
+
+  const calculatedPrice = pricingResult?.totalFinal || 0
 
   if (loading) {
     return (
@@ -315,14 +343,30 @@ export default function ProductDetailPage() {
               <span className="text-[32px] font-['Inter'] font-medium text-black leading-[40px]">
                 {formatPrice(product.valorM2)}/m²
               </span>
-              {calculatedPrice > 0 && validationErrors.length === 0 && (
+              {calculatedPrice > 0 && validationErrors.length === 0 && pricingResult && (
                 <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                  <p className="text-sm font-['Inter'] text-gray-700">
-                    Preço total para suas medidas:
-                  </p>
-                  <p className="text-2xl font-['Inter'] font-bold text-green-700">
-                    {formatPrice(calculatedPrice)}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm font-['Inter'] text-gray-700">
+                        Preço total para suas medidas:
+                      </p>
+                      <p className="text-2xl font-['Inter'] font-bold text-green-700">
+                        {formatPrice(calculatedPrice)}
+                      </p>
+                    </div>
+                    {pricingResult.isChargingMinimum && (
+                      <div className="relative group">
+                        <Info className="w-5 h-5 text-green-600 cursor-help" />
+                        <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-white border border-green-300 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                          <p className="text-xs text-gray-700">
+                            <span className="font-semibold">Cobrado área mínima (1,2m²)</span>
+                            <br />
+                            Sua persiana tem {pricingResult.areaBruta.toFixed(2)}m², mas cobramos no mínimo 1,2m².
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -403,9 +447,185 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
+              {/* Avisos de dimensões */}
+              {dimensionWarnings.length > 0 && (
+                <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-300 flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <ul className="text-sm text-yellow-800 space-y-1">
+                      {dimensionWarnings.map((warning, idx) => (
+                        <li key={idx}>• {warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+
               <p className="text-xs text-gray-600">
                 Área mínima: {product.areaMinM2}m²
               </p>
+            </div>
+
+            <div className="w-full h-px bg-[rgb(200,190,191)]"></div>
+
+            {/* Configuração do Comando */}
+            <div className="flex flex-col gap-4">
+              <p className="text-base font-['Inter'] font-medium text-black">
+                Configuração do Comando
+              </p>
+
+              {/* Lado do Comando */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-['Inter'] text-gray-700">
+                  Lado do comando:
+                </label>
+                <div className="flex gap-1">
+                  {/* Botão Esquerdo */}
+                  <button
+                    type="button"
+                    onClick={() => setCommandSide('esquerdo')}
+                    className={`
+                      relative w-[100px] h-[100px] p-2 rounded-lg border-2 transition-all duration-200
+                      ${commandSide === 'esquerdo'
+                        ? 'border-[rgb(108,25,29)] bg-green-50'
+                        : 'border-gray-300 bg-white hover:border-gray-400'
+                      }
+                    `}
+                  >
+                    <div className="flex flex-col items-center gap-1 h-full">
+                      {/* Ilustração Esquerda */}
+                      <div className="relative w-full flex-1 bg-white rounded border border-gray-300 overflow-hidden">
+                        {/* Fundo da janela */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-gray-100"></div>
+
+                        {/* Persiana com lâminas */}
+                        <div className="absolute inset-2">
+                          {/* Lâminas horizontais */}
+                          <div className="absolute inset-0 flex flex-col gap-[1px]">
+                            {[...Array(10)].map((_, i) => (
+                              <div key={i} className="h-[6px] bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 rounded-sm shadow-sm border-b border-gray-400/20"></div>
+                            ))}
+                          </div>
+
+                          {/* Corrente do comando - ESQUERDA */}
+                          <div className="absolute left-1 top-0 bottom-0 w-[2px] flex flex-col items-center z-10">
+                            {/* Linha da corrente */}
+                            <div className="w-[2px] h-full bg-gradient-to-b from-[rgb(138,55,59)] to-[rgb(108,25,29)] rounded-full shadow-sm"></div>
+                            {/* Bolinhas da corrente */}
+                            <div className="absolute top-1 flex flex-col gap-[2px]">
+                              {[...Array(8)].map((_, i) => (
+                                <div key={i} className="w-[3px] h-[3px] bg-[rgb(108,25,29)] rounded-full shadow-sm ring-1 ring-black/10"></div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Label */}
+                      <span className={`text-[10px] font-['Inter'] font-medium ${commandSide === 'esquerdo' ? 'text-[rgb(108,25,29)]' : 'text-gray-700'}`}>
+                        ESQUERDA
+                      </span>
+                    </div>
+                    {/* Check indicator */}
+                    {commandSide === 'esquerdo' && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-[rgb(108,25,29)] rounded-full flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Botão Direito */}
+                  <button
+                    type="button"
+                    onClick={() => setCommandSide('direito')}
+                    className={`
+                      relative w-[100px] h-[100px] p-2 rounded-lg border-2 transition-all duration-200
+                      ${commandSide === 'direito'
+                        ? 'border-[rgb(108,25,29)] bg-green-50'
+                        : 'border-gray-300 bg-white hover:border-gray-400'
+                      }
+                    `}
+                  >
+                    <div className="flex flex-col items-center gap-1 h-full">
+                      {/* Ilustração Direita */}
+                      <div className="relative w-full flex-1 bg-white rounded border border-gray-300 overflow-hidden">
+                        {/* Fundo da janela */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-gray-100"></div>
+
+                        {/* Persiana com lâminas */}
+                        <div className="absolute inset-2">
+                          {/* Lâminas horizontais */}
+                          <div className="absolute inset-0 flex flex-col gap-[1px]">
+                            {[...Array(10)].map((_, i) => (
+                              <div key={i} className="h-[6px] bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 rounded-sm shadow-sm border-b border-gray-400/20"></div>
+                            ))}
+                          </div>
+
+                          {/* Corrente do comando - DIREITA */}
+                          <div className="absolute right-1 top-0 bottom-0 w-[2px] flex flex-col items-center z-10">
+                            {/* Linha da corrente */}
+                            <div className="w-[2px] h-full bg-gradient-to-b from-blue-500 to-blue-700 rounded-full shadow-sm"></div>
+                            {/* Bolinhas da corrente */}
+                            <div className="absolute top-1 flex flex-col gap-[2px]">
+                              {[...Array(8)].map((_, i) => (
+                                <div key={i} className="w-[3px] h-[3px] bg-blue-600 rounded-full shadow-sm ring-1 ring-black/10"></div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Label */}
+                      <span className={`text-[10px] font-['Inter'] font-medium ${commandSide === 'direito' ? 'text-[rgb(108,25,29)]' : 'text-gray-700'}`}>
+                        DIREITA
+                      </span>
+                    </div>
+                    {/* Check indicator */}
+                    {commandSide === 'direito' && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-[rgb(108,25,29)] rounded-full flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Altura do Comando */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-['Inter'] text-gray-700">
+                  Altura do comando (cm):
+                </label>
+                <select
+                  value={commandHeight}
+                  onChange={(e) => setCommandHeight(Number(e.target.value))}
+                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black cursor-pointer focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-[rgb(108,25,29)]"
+                >
+                  {Array.from({ length: 17 }, (_, i) => 100 + i * 10).map((height) => (
+                    <option key={height} value={height}>
+                      {height}cm
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-600">
+                  Altura padrão: 160cm (recomendada)
+                </p>
+              </div>
+
+              {/* Cor do Comando */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-['Inter'] text-gray-700">
+                  Cor do comando:
+                </label>
+                <select
+                  value={commandColor}
+                  onChange={(e) => setCommandColor(e.target.value)}
+                  className="w-full h-[40px] px-4 rounded-lg border border-[rgb(200,190,191)] bg-white text-base font-['Inter'] text-black cursor-pointer focus:ring-2 focus:ring-[rgb(108,25,29)] focus:border-[rgb(108,25,29)]"
+                >
+                  <option value="branco">Branco</option>
+                  <option value="preto">Preto</option>
+                  <option value="marrom">Marrom</option>
+                  <option value="bege">Bege</option>
+                  <option value="cinza">Cinza</option>
+                </select>
+              </div>
             </div>
 
             <div className="w-full h-px bg-[rgb(200,190,191)]"></div>

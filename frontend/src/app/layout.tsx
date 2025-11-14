@@ -25,6 +25,22 @@ export const metadata: Metadata = {
   authors: [{ name: 'Rosa Chic Persinas' }],
   creator: 'Rosa Chic Persinas',
   publisher: 'Rosa Chic Persinas',
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/favicon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'apple-touch-icon-precomposed',
+        url: '/favicon.png',
+      },
+    ],
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -36,6 +52,14 @@ export const metadata: Metadata = {
     siteName: 'Rosa Chic Persinas',
     locale: 'pt_BR',
     type: 'website',
+    images: [
+      {
+        url: '/favicon.png',
+        width: 512,
+        height: 512,
+        alt: 'Rosa Chic Persinas Logo',
+      },
+    ],
   },
 }
 

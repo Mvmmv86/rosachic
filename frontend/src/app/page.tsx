@@ -408,12 +408,13 @@ export default function HomePage() {
                   <div className="flex p-6 flex-col justify-center items-center gap-2 w-full min-h-[420px] rounded-xl border border-[rgb(200,190,191)] bg-[rgb(241,237,237)] hover:border-[#6C191D] transition-colors cursor-pointer">
                     {/* Header do card - Badge e Coração */}
                     <div className="w-full flex justify-between items-start mb-2">
-                      {badge && (
-                        <span className={`px-3 py-1 ${badgeColor} text-white text-xs font-['Inter'] rounded-full`}>
-                          {badge}
-                        </span>
-                      )}
-                      {!badge && <div></div>}
+                      <div className="flex-1">
+                        {badge && (
+                          <span className={`px-3 py-1 ${badgeColor} text-white text-xs font-['Inter'] rounded-full`}>
+                            {badge}
+                          </span>
+                        )}
+                      </div>
                       <button
                         onClick={(e) => {
                           e.preventDefault()
