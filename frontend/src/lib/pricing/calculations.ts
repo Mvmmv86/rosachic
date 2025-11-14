@@ -71,6 +71,7 @@ export interface PricingResult {
   areaAjustada: number
   areaArredondada: number
   areaCobravel: number
+  isChargingMinimum: boolean // Indica se está cobrando área mínima
 
   // Valores base
   precoBase: number
@@ -157,8 +158,9 @@ export function calculatePrice(input: PricingInput): PricingResult {
   // PASSO 3: Arredondar para cima (0.1 m²)
   const areaArredondada = roundUp(areaAjustada, 1)
 
-  // PASSO 4: Área cobrável (mínimo 1 m²)
+  // PASSO 4: Área cobrável (mínimo 1,2 m²)
   const areaCobravel = Math.max(areaArredondada, PRICING_CONSTANTS.MIN_CHARGEABLE_AREA_M2)
+  const isChargingMinimum = areaArredondada < PRICING_CONSTANTS.MIN_CHARGEABLE_AREA_M2
 
   // Aviso para áreas grandes
   if (areaCobravel > 6.0) {
@@ -202,6 +204,7 @@ export function calculatePrice(input: PricingInput): PricingResult {
     areaAjustada,
     areaArredondada,
     areaCobravel,
+    isChargingMinimum,
 
     // Valores
     precoBase,
@@ -229,7 +232,7 @@ export function calculatePrice(input: PricingInput): PricingResult {
       step1_areaBruta: `${widthCm}cm × ${heightCm}cm = ${areaBruta.toFixed(2)}m²`,
       step2_areaAjustada: `${areaBruta.toFixed(2)}m² × ${lossFactor} = ${areaAjustada.toFixed(3)}m²`,
       step3_arredondada: `Arredondado para cima: ${areaArredondada.toFixed(1)}m²`,
-      step4_areaCobravel: `Área cobrável: ${areaCobravel.toFixed(1)}m² (mínimo: 1.0m²)`,
+      step4_areaCobravel: `Área cobrável: ${areaCobravel.toFixed(1)}m² (mínimo: ${PRICING_CONSTANTS.MIN_CHARGEABLE_AREA_M2}m²)${isChargingMinimum ? ' - cobrando área mínima' : ''}`,
       step5_precoBase: `${areaCobravel.toFixed(1)}m² × R$ ${pricePerM2.toFixed(2)} × ${kMaterial} (k_material) = R$ ${precoBase.toFixed(2)}`,
       step6_opcionais: `Bandô: R$ ${valorBando.toFixed(2)} + Motor: R$ ${valorMotor.toFixed(2)} = R$ ${totalOpcionais.toFixed(2)}`,
       step7_instalacaoFrete: `Instalação (${installationPercentage}%): R$ ${instalacao.toFixed(2)} + Frete: R$ ${shippingCost.toFixed(2)}`,

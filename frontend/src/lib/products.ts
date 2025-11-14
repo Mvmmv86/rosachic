@@ -101,6 +101,8 @@ export function calculatePrice(product: Product, larguraCm: number, alturaCm: nu
 
 /**
  * Valida se as dimensões estão dentro dos limites do produto
+ * Nota: Não valida área mínima aqui - permitimos dimensões menores que 1,2m²,
+ * mas o sistema cobrará sempre a área mínima de 1,2m² no cálculo.
  */
 export function validateDimensions(product: Product, larguraCm: number, alturaCm: number): {
   valid: boolean
@@ -116,11 +118,8 @@ export function validateDimensions(product: Product, larguraCm: number, alturaCm
     errors.push(`Altura máxima permitida: ${product.alturaMaxCm}cm`)
   }
 
-  const areaM2 = (larguraCm * alturaCm) / 10000
-
-  if (areaM2 < product.areaMinM2) {
-    errors.push(`Área mínima: ${product.areaMinM2}m²`)
-  }
+  // Removida validação de área mínima - permitir dimensões menores
+  // O cálculo sempre cobrará 1,2m² como mínimo
 
   return {
     valid: errors.length === 0,

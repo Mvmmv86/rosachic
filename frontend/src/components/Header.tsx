@@ -26,11 +26,19 @@ export function Header() {
   const [isCategoriasMenuOpen, setIsCategoriasMenuOpen] = useState(false)
   const [isAmbientesMenuOpen, setIsAmbientesMenuOpen] = useState(false)
 
+  // Estado para evitar erro de hidratação
+  const [isMounted, setIsMounted] = useState(false)
+
   // Refs para detectar clicks fora
   const userMenuRef = useRef<HTMLDivElement>(null)
   const cartMenuRef = useRef<HTMLDivElement>(null)
   const categoriasMenuRef = useRef<HTMLLIElement>(null)
   const ambientesMenuRef = useRef<HTMLLIElement>(null)
+
+  // Marcar componente como montado no cliente
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Fechar menus ao clicar fora
   useEffect(() => {
@@ -154,7 +162,7 @@ export function Header() {
                 className="w-9 h-9 bg-white rounded-lg border border-[rgb(108,25,29)] flex items-center justify-center hover:bg-gray-50 transition-colors relative"
               >
                 <ShoppingCart className="w-3 h-3 text-[rgb(108,25,29)]" />
-                {cartItemsCount > 0 && (
+                {isMounted && cartItemsCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
                     {cartItemsCount}
                   </span>
